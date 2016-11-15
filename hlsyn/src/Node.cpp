@@ -109,4 +109,9 @@ void Node::addPreviousNode(Node * previousNode)
 	previousNodes.push_back(previousNode);
 }
 
+void Node::addNextNode(Node * nextNode) 
+{
+	nextNodes.push_back(nextNode);
+}
+
 

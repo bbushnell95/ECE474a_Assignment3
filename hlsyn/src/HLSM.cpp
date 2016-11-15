@@ -171,7 +171,16 @@ void HLSM::createUnscheduledGraph()
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
 		if (_nodes.at(i).getOperation().compare("?")) {
-			_nodes.at(i).setNextNodes(_nodes.at(i).getOutputs().at(0)->getGoingTo());
+			for (j = 0; j < (int)_nodes.at(i).getOutputs().size(); ++j) {
+				for (k = 0; k < (int)_nodes.at(i).getOutputs().at(j)->getGoingTo().size(); ++k) {
+					if ((_nodes.at(i).getOutputs().at(j)->getGoingTo().at(k)->getOperation().compare("?"))
+						|| (!_nodes.at(i).getOperation().compare("==")
+						|| !_nodes.at(i).getOperation().compare(">")
+						|| !_nodes.at(i).getOperation().compare("<"))) {
+						_nodes.at(i).addNextNode(_nodes.at(i).getOutputs().at(j)->getGoingTo().at(k));
+					}
+				}
+			}
 			for (j = 0; j < (int)_nodes.at(i).getInputs().size(); ++j) {
 				if (_nodes.at(i).getInputs().at(j)->getComingFrom().size() != 0) {
 					_nodes.at(i).addPreviousNode(_nodes.at(i).getInputs().at(j)->getComingFrom().at(0));

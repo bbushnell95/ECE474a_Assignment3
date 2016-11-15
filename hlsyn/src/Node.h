@@ -78,6 +78,7 @@ public:
 	void addInput(DataType* newInput);
 	void addOutput(DataType* newOutput);
 	void addPreviousNode(Node* previousNode);
+	void addNextNode(Node* nextNode);
 
 };
 
