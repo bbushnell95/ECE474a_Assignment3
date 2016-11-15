@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	/* Check for the correct number of arguments */
 	if (argc != 4) {
 		cout << endl;
-		cout << "Usage: " << argv[0] << "cFile latency verilogFile";
+		cout << "Usage: " << argv[0] << " cFile latency verilogFile";
 		cout << endl << endl;
 		return EXIT_FAILURE;
 	}
@@ -36,11 +36,13 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	/* TODO: THE REAL WORK WILL HAPPEN HERE. */
+
 
 	/* Write to the verilog file */
 	if (!newHLSM.writeToFile(argv[3])) {
 		cout << endl;
-		cout << "Could not write to output file " << argv[3] << ".";
+		cout << "Could not write to the output file " << argv[3] << ".";
 		return EXIT_FAILURE;
 	}
 

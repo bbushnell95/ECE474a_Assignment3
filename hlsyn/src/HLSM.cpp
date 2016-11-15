@@ -1,17 +1,13 @@
 /*
 Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
 Date Create: 10/3/2016
-Assignment: 2
+Assignment: 3
 File: Circuit.cpp
-Description: Circuit Class definitions for dpgen program
+Description: HLSM class definitions for hlysn program
 */
 
 #include "HLSM.h"
 using namespace std;
-
-
-
-
 
 bool HLSM::readFile(char* fileName)
 {
@@ -201,9 +197,6 @@ bool HLSM::writeToFile(char* fileName)
 		outputFile.close();
 		return false;
 	}
-	/* Note: There can be no wires if there is
-	a netlist behavior file containing no
-	inter-connected datapath components. */
 
 	/* Print Setup. */
 	outputFile << "`timescale 1ns / 1ps" << endl;
@@ -211,15 +204,17 @@ bool HLSM::writeToFile(char* fileName)
 	outputFile << "//" << endl;
 	outputFile << "//Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)" << endl;
 	outputFile << "//Date Created: " << asctime(localtime(&timeNow));
-	outputFile << "//Assignment: " << "2" << endl;
+	outputFile << "//Assignment: " << "3" << endl;
 	outputFile << "//File: " << moduleName << ".v" << endl;
-	outputFile << "//Description: A netlist behavior circuit implementation" << endl;
+	outputFile << "//Description: An HLSM module which represents the C-like behavioral description " << endl;
+	outputFile << "//             into a shceduled high-level statement machine implemented in Verilog." << endl;
 	outputFile << "//" << endl;
 	outputFile << "//////////////////////////////////////////////////////////////////////////////////" << endl;
 	outputFile << endl;
 
 	/* Start of Module. */
-	outputFile << "module " << moduleName << "(clk, rst, ";
+	// outputFile << "module " << moduleName << "(clk, rst, ";
+	outputFile << "module " << "HLSM" << "(Clk, Rst, Start, Done ";
 	for (i = 0; i < (int)_inputs.size(); i++) {
 		outputFile << (*_inputs.at(i)).getName();
 		outputFile << ", ";
@@ -233,7 +228,9 @@ bool HLSM::writeToFile(char* fileName)
 	outputFile << ");" << endl;
 
 	/* Print clk, rst. */
-	outputFile << "\t" << "input clk, rst;" << endl;
+	// outputFile << "\t" << "input clk, rst;" << endl;
+	outputFile << "\t" << "input Clk, Rst, Start;" << endl;
+	outputFile << "\t" << "output reg Done;" << endl;
 
 	/* Print Inputs, Outputs, Wires. */
 	writeVarsToFile(&outputFile);
