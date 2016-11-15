@@ -128,12 +128,12 @@ bool HLSM::readFile(char* fileName)
 				/* Create some datapath components. */
 				getline(inputFile, checkString);
 				if (componentOutputIndex != -1) {
-					if (!determineComponent(checkString, _outputs.at(componentOutputIndex))) {
+					if (!determineOperation(checkString, _outputs.at(componentOutputIndex))) {
 						return false;
 					}
 				}
 				else if (componentWireIndex != -1) {
-					if (!determineComponent(checkString, _wires.at(componentWireIndex))) {
+					if (!determineOperation(checkString, _variables.at(componentWireIndex))) {
 						return false;
 					}
 				}
@@ -142,19 +142,19 @@ bool HLSM::readFile(char* fileName)
 		}
 		checkString = "";
 	}
-	for (i = 0; i < (int)_datapathComponents.size(); ++i) {
-		_datapathComponents.at(i).determineDataWidth();
-		_datapathComponents.at(i).assignDelay();
-		_datapathComponents.at(i).checkIfSigned();
-		//set going to for inputs
-		for (j = 0; j < (int)_datapathComponents.at(i).getInputs().size(); ++j) {
-			(*_datapathComponents.at(i).getInputs().at(j)).addToGoingTo(&_datapathComponents.at(i));
-		}
-		//sets coming from for outputs
-		for (j = 0; j < (int)_datapathComponents.at(i).getOutputs().size(); ++j) {
-			(*_datapathComponents.at(i).getOutputs().at(j)).addToComingFrom(&_datapathComponents.at(i));
-		}
-	}
+	//for (i = 0; i < (int)_nodes.size(); ++i) {
+	//	_datapathComponents.at(i).determineDataWidth();
+	//	_datapathComponents.at(i).assignDelay();
+	//	_datapathComponents.at(i).checkIfSigned();
+	//	//set going to for inputs
+	//	for (j = 0; j < (int)_datapathComponents.at(i).getInputs().size(); ++j) {
+	//		(*_datapathComponents.at(i).getInputs().at(j)).addToGoingTo(&_datapathComponents.at(i));
+	//	}
+	//	//sets coming from for outputs
+	//	for (j = 0; j < (int)_datapathComponents.at(i).getOutputs().size(); ++j) {
+	//		(*_datapathComponents.at(i).getOutputs().at(j)).addToComingFrom(&_datapathComponents.at(i));
+	//	}
+	//}
 
 	inputFile.close();
 	return true;
@@ -629,92 +629,92 @@ bool HLSM::checkVariable(std::string checkName, int* outputIndex, int* inputInde
 	}
 	return variableFound;
 }
-//bool HLSM::determineComponent(std::string line, DataType* output)
-//{
-//	int i = 0;
-//	int equalCount = 0;
-//	int inputIndex = -1;
-//	int wireIndex = -1;
-//	int outputIndex = -1;
-//	bool result = true;
-//	bool isDecInc = false;
-//	std::string checkString = "";
-//	std::string componentType = "";
-//	std::string tempVariableName = "";
-//	std::vector<DataType*> componentInputs;
-//	std::vector<DataType*> componentOutputs;
-//
-//	for (i = line.size() - 1; i >= 0; --i) {
-//		if (line.at(i) == ' ' || line.at(i) == '\r') {
-//			line.erase(line.end() - 1);
-//		}
-//		else {
-//			break;
-//		}
-//	}
-//
-//	std::istringstream iss(line);
-//
-//	//line += '\n';
-//	componentOutputs.push_back(output);
-//
-//
-//	while (!iss.eof()) {
-//		iss >> checkString;
-//
-//		if (!checkString.compare("=")) {
-//			++equalCount;
-//		}
-//
-//		if (checkIfComment(checkString)) {
-//			break;
-//		}
-//
-//		else if (!checkString.compare("1")) {
-//			if (!componentType.compare("ADD")) {
-//				componentType = "INC";
-//				isDecInc = true;
-//			}
-//			if (!componentType.compare("SUB")) {
-//				componentType = "DEC";
-//				isDecInc = true;
-//			}
-//		}
-//		else {
-//			if (!checkValidSymbol(checkString, &componentType)) {
-//				if (checkVariable(checkString, &outputIndex, &inputIndex, &wireIndex)) {
-//					if (inputIndex != -1) {
-//						componentInputs.push_back(_inputs.at(inputIndex));
-//
-//					}
-//					else if (wireIndex != -1) {
-//						componentInputs.push_back(_wires.at(wireIndex));
-//					}
-//				}
-//				else {
-//					cout << checkString << " is not a valid variable or symbol" << endl;
-//					result = false;
-//					break;
-//				}
-//			}
-//
-//		}
-//	}
-//	if (result) {
-//		if (componentInputs.size() == 1 && !isDecInc) {
-//			createNewDatapathComponent("REG", componentInputs, componentOutputs);
-//		}
-//		else {
-//			createNewDatapathComponent(componentType, componentInputs, componentOutputs);
-//		}
-//	}
-//	return result;
-//
-//}
+bool HLSM::determineOperation(std::string line, DataType* output)
+{
+	int i = 0;
+	int equalCount = 0;
+	int inputIndex = -1;
+	int wireIndex = -1;
+	int outputIndex = -1;
+	bool result = true;
+	bool isDecInc = false;
+	std::string checkString = "";
+	std::string componentType = "";
+	std::string tempVariableName = "";
+	std::vector<DataType*> componentInputs;
+	std::vector<DataType*> componentOutputs;
+
+	for (i = line.size() - 1; i >= 0; --i) {
+		if (line.at(i) == ' ' || line.at(i) == '\r') {
+			line.erase(line.end() - 1);
+		}
+		else {
+			break;
+		}
+	}
+
+	std::istringstream iss(line);
+
+	//line += '\n';
+	componentOutputs.push_back(output);
 
 
+	while (!iss.eof()) {
+		iss >> checkString;
 
-bool HLSM::checkValidSymbol(std::string checkSymbol, std::string* dPType)
+		if (!checkString.compare("=")) {
+			++equalCount;
+		}
+
+		if (checkIfComment(checkString)) {
+			break;
+		}
+
+		/*else if (!checkString.compare("1")) {
+			if (!componentType.compare("ADD")) {
+				componentType = "INC";
+				isDecInc = true;
+			}
+			if (!componentType.compare("SUB")) {
+				componentType = "DEC";
+				isDecInc = true;
+			}
+		}*/
+		else {
+			if (!checkValidSymbol(checkString, &componentType)) {
+				if (checkVariable(checkString, &outputIndex, &inputIndex, &wireIndex)) {
+					if (inputIndex != -1) {
+						componentInputs.push_back(_inputs.at(inputIndex));
+
+					}
+					else if (wireIndex != -1) {
+						componentInputs.push_back(_variables.at(wireIndex));
+					}
+				}
+				else {
+					cout << checkString << " is not a valid variable or symbol" << endl;
+					result = false;
+					break;
+				}
+			}
+
+		}
+	}
+	if (result) {
+		createNewNode(componentType, _nodes.size() + 1, componentInputs, componentOutputs);
+	}
+	return result;
+
+}
+
+void HLSM::createNewNode(std::string operation, int num, std::vector<DataType*> _Cinputs, std::vector<DataType*> _Coutputs)
+{
+	Node* newNode = new Node(operation, num, _Cinputs, _Coutputs);
+
+	_nodes.push_back(*newNode);
+}
+
+bool HLSM::checkValidSymbol(std::string checkSymbol, std::string* operation)
 {
 	const std::string validSymbols[13] = { "=","+" ,"-", "*", ">", "<","==", "?", ":", ">>", "<<", "/", "%" };
 	int i = 0;
@@ -723,46 +723,14 @@ bool HLSM::checkValidSymbol(std::string checkSymbol, std::string* dPType)
 	for (i = 0; i < 13; i++) {
 		if (!checkSymbol.compare(validSymbols[i])) {
 			foundValidSymbol = true;
+			*operation = validSymbols[i];
 			break;
 		}
 	}
-
-	if (!foundValidSymbol) {
-		return false;
-	}
-
-	switch (i) {
-	case 0:
-		// Do nothing.
-		break;
-	case 1: *dPType = "ADD";
-		break;
-	case 2: *dPType = "SUB";
-		break;
-	case 3: *dPType = "MUL";
-		break;
-	case 4: *dPType = "COMP_gt";
-		break;
-	case 5: *dPType = "COMP_lt";
-		break;
-	case 6: *dPType = "COMP_eq";
-		break;
-	case 7: *dPType = "MUX2x1";
-		break;
-	case 8: *dPType = "MUX2x1";
-		break;
-	case 9: *dPType = "SHR";
-		break;
-	case 10: *dPType = "SHL";
-		break;
-	case 11: *dPType = "DIV";
-		break;
-	case 12: *dPType = "MOD";
-		break;
-	}
-
-	return true;
+	return foundValidSymbol;
 }
+
+
 
 bool HLSM::writeInputsToFile(ofstream *outputFile, int i, int j)
 {

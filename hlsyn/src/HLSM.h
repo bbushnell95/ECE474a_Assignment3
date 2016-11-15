@@ -22,6 +22,7 @@ Description: HLSM Class for hlsyn program
 #include "Input.h"
 #include "Output.h"
 #include "Variable.h"
+#include "Node.h"
 
 
 #define DATAWIDTH_1 1
@@ -38,7 +39,8 @@ private:
 	std::string outputCircuit;
 	std::vector<Input*> _inputs;
 	std::vector<Output*> _outputs;
-	std::vector<Variable*> _wires;
+	std::vector<Variable*> _variables;
+	std::vector<Node> _nodes;
 	
 
 public:
@@ -60,8 +62,8 @@ public:
 	void createNewVariable(std::string name, bool sign, int dataWidth);
 	// void createNewRegister(std::string name, bool sign, int dataWidth);
 	bool checkVariable(std::string checkName, int* outputIndex, int* inputIndex, int* wireIndex);
-	//bool determineComponent(std::string line, DataType* output);
-	//void createNewDatapathComponent(std::string name, std::vector<DataType*> _Cinputs, std::vector<DataType*> _Coutputs);
+	bool determineOperation(std::string line, DataType* output);
+	void createNewNode(std::string name, int num, std::vector<DataType*> _Cinputs, std::vector<DataType*> _Coutputs);
 	bool checkValidSymbol(std::string checkSymbol, std::string* dPType);
 	bool writeInputsToFile(std::ofstream *outputFile, int i, int j);
 	bool writeVarsToFile(std::ofstream *outputFile);

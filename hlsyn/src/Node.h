@@ -56,7 +56,7 @@ private:
 public:
 	/*Constructors*/
 	Node();
-	Node(int num, std::vector<DataType*> _inputs, std::vector<DataType*> _outputs);
+	Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<DataType*> _outputs);
 
 	/*Methods*/
 	std::string getOperation();

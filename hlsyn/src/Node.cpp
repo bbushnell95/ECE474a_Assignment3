@@ -14,8 +14,9 @@ Node::Node()
 	visited = 'w';
 }
 
-Node::Node(int num, std::vector<DataType*> _inputs, std::vector<DataType*> _outputs)
+Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<DataType*> _outputs)
 {
+	operation = n;
 	nodeNum = num;
 	_componentInputs = _inputs;
 	_componentOutputs = _outputs;
