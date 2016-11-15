@@ -6,8 +6,8 @@ File: Output.h
 Description: output Class for dpgen program
 */
 
-#ifndef WIRE_H
-#define WIRE_H
+#ifndef VARIABLE_H
+#define VARIABLE_H
 
 #include<string>
 #include<vector>
@@ -16,7 +16,7 @@ Description: output Class for dpgen program
 #include"DataType.h"
 
 
-class Wire: public DataType{
+class Variable: public DataType{
 
 //private:
 	//	std::string name;
@@ -25,8 +25,8 @@ class Wire: public DataType{
 
 public:
 	/*constructors*/
-	Wire();
-	Wire(std::string n, bool s, int dW);
+	Variable();
+	Variable(std::string n, bool s, int dW);
 
 	/*Methods*/
 	/*std::string getName();
@@ -35,4 +35,4 @@ public:
 	void setDataWidth(int dW);*/
 };
 
-#endif // WIRE_H
+#endif // VARIABLE_H

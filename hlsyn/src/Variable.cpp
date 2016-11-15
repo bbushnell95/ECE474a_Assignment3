@@ -6,15 +6,15 @@ File: Output.cpp
 Description: output Class for dpgen program
 */
 
-#include "Wire.h"
+#include "Variable.h"
 
-Wire::Wire()
+Variable::Variable()
 {
 	name = "Unknown";
 	dataWidth = 0;
 }
 
-Wire::Wire(std::string n, bool s, int dW)
+Variable::Variable(std::string n, bool s, int dW)
 {
 	name = n;
 	signUnsigned = s;

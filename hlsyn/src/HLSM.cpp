@@ -90,7 +90,7 @@ bool HLSM::readFile(char* fileName)
 				return false;
 			}
 		}
-		else if (!checkString.compare("wire") || !checkString.compare("register")) {
+		else if (!checkString.compare("variable") || !checkString.compare("register")) {
 			inputFile >> checkString;
 
 			foundDataType = false;
@@ -105,7 +105,7 @@ bool HLSM::readFile(char* fileName)
 
 			if (foundDataType) {
 				getline(inputFile, checkString);
-				createNewWireVariable(checkString, i);
+				createNewVariableVariable(checkString, i);
 			}
 			else {
 				cout << "Error: Invalid Data type: " << checkString << " Exiting Program." << endl;
@@ -515,7 +515,7 @@ void HLSM::createNewOutputVariable(std::string checkString, int dataWidthIndex)
 	}
 }
 
-void HLSM::createNewWireVariable(std::string checkString, int dataWidthIndex)
+void HLSM::createNewVariableVariable(std::string checkString, int dataWidthIndex)
 {
 	string checkChar = "";
 	string variableName = "";
@@ -545,29 +545,29 @@ void HLSM::createNewWireVariable(std::string checkString, int dataWidthIndex)
 		}
 
 		switch (dataWidthIndex) {
-		case 0: createNewWire(variableName, 1, DATAWIDTH_1);
+		case 0: createNewVariable(variableName, 1, DATAWIDTH_1);
 			break;
-		case 1: createNewWire(variableName, 1, DATAWIDTH_2);
+		case 1: createNewVariable(variableName, 1, DATAWIDTH_2);
 			break;
-		case 2: createNewWire(variableName, 1, DATAWIDTH_8);
+		case 2: createNewVariable(variableName, 1, DATAWIDTH_8);
 			break;
-		case 3: createNewWire(variableName, 1, DATAWIDTH_16);
+		case 3: createNewVariable(variableName, 1, DATAWIDTH_16);
 			break;
-		case 4: createNewWire(variableName, 1, DATAWIDTH_32);
+		case 4: createNewVariable(variableName, 1, DATAWIDTH_32);
 			break;
-		case 5: createNewWire(variableName, 1, DATAWIDTH_64);
+		case 5: createNewVariable(variableName, 1, DATAWIDTH_64);
 			break;
-		case 6: createNewWire(variableName, 0, DATAWIDTH_1);
+		case 6: createNewVariable(variableName, 0, DATAWIDTH_1);
 			break;
-		case 7: createNewWire(variableName, 0, DATAWIDTH_2);
+		case 7: createNewVariable(variableName, 0, DATAWIDTH_2);
 			break;
-		case 8: createNewWire(variableName, 0, DATAWIDTH_8);
+		case 8: createNewVariable(variableName, 0, DATAWIDTH_8);
 			break;
-		case 9: createNewWire(variableName, 0, DATAWIDTH_16);
+		case 9: createNewVariable(variableName, 0, DATAWIDTH_16);
 			break;
-		case 10: createNewWire(variableName, 0, DATAWIDTH_32);
+		case 10: createNewVariable(variableName, 0, DATAWIDTH_32);
 			break;
-		case 11: createNewWire(variableName, 0, DATAWIDTH_64);
+		case 11: createNewVariable(variableName, 0, DATAWIDTH_64);
 			break;
 		}
 	}
@@ -588,7 +588,7 @@ void HLSM::createNewOutput(std::string name, bool sign, int dataWidth)
 	_outputs.push_back(newOutput);
 }
 
-void HLSM::createNewWire(std::string name, bool sign, int dataWidth)
+void HLSM::createNewVariable(std::string name, bool sign, int dataWidth)
 {
 	Wire* newWire = new Wire(name, sign, dataWidth);
 

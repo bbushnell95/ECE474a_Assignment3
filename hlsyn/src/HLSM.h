@@ -21,7 +21,7 @@ Description: HLSM Class for hlsyn program
 #include "DataType.h"
 #include "Input.h"
 #include "Output.h"
-#include "Wire.h"
+#include "Variable.h"
 
 
 #define DATAWIDTH_1 1
@@ -38,7 +38,7 @@ private:
 	std::string outputCircuit;
 	std::vector<Input*> _inputs;
 	std::vector<Output*> _outputs;
-	std::vector<Wire*> _wires;
+	std::vector<Variable*> _wires;
 	
 
 public:
@@ -53,11 +53,11 @@ public:
 	//void visitComponent(DatapathComponent * compoenent, double currTime, double* cP);
 	void createNewInputVariable(std::string checkString, int dataWidthIndex);
 	void createNewOutputVariable(std::string checkString, int dataWidthIndex);
-	void createNewWireVariable(std::string checkString, int dataWidthIndex);
+	void createNewVariableVariable(std::string checkString, int dataWidthIndex);
 	// void createNewRegisterVariable(std::string checkString, int dataWidthIndex);
 	void createNewInput(std::string name, bool sign, int dataWidth);
 	void createNewOutput(std::string name, bool sign, int dataWidth);
-	void createNewWire(std::string name, bool sign, int dataWidth);
+	void createNewVariable(std::string name, bool sign, int dataWidth);
 	// void createNewRegister(std::string name, bool sign, int dataWidth);
 	bool checkVariable(std::string checkName, int* outputIndex, int* inputIndex, int* wireIndex);
 	//bool determineComponent(std::string line, DataType* output);
