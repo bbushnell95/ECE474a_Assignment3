@@ -22,6 +22,8 @@ private:
 	int nodeNum;
 	std::vector<DataType*> _componentInputs;
 	std::vector<DataType*> _componentOutputs;
+	std::vector<Node*> previousNodes;
+	std::vector<Node*> nextNodes;
 	char visited;
 
 	///* Datapath Component inputs */
@@ -67,10 +69,15 @@ public:
 	void setInputs(std::vector<DataType*> _inputs);
 	std::vector<DataType*> getOutputs();
 	void setOutputs(std::vector<DataType*> _outputs);
+	std::vector<Node*> getPreviousNodes();
+	void setPreviousNodes(std::vector<Node*> pN);
+	std::vector<Node*> getNextNodes();
+	void setNextNodes(std::vector<Node*> nN);
 	char getVisted();
 	void setVisted(char v);
 	void addInput(DataType* newInput);
 	void addOutput(DataType* newOutput);
+	void addPreviousNode(Node* previousNode);
 
 };
 

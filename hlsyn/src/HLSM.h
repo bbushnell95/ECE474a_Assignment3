@@ -50,6 +50,7 @@ public:
 
 	/*Methods*/
 	bool readFile(char* fileName);
+	void createUnscheduledGraph();
 	bool writeToFile(char* fileName);
 	//void determineCriticalPath();
 	//void visitComponent(DatapathComponent * compoenent, double currTime, double* cP);

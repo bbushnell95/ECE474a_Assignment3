@@ -31,5 +31,33 @@ void DataType::setSignUnsiged(bool sU)
 	signUnsigned = sU;
 }
 
+std::vector<Node*> DataType::getGoingTo()
+{
+	return goingTo;
+}
 
+void DataType::setGoingTo(std::vector<Node*> gT)
+{
+	goingTo = gT;
+}
+
+std::vector<Node*> DataType::getComingFrom()
+{
+	return comingFrom;
+}
+
+void DataType::setComingFrom(std::vector<Node*> cF)
+{
+	comingFrom = cF;
+}
+
+void DataType::addToGoingTo(Node* newComponent)
+{
+	goingTo.push_back(newComponent);
+}
+
+void DataType::addToComingFrom(Node* newComponent)
+{
+	comingFrom.push_back(newComponent);
+}
 

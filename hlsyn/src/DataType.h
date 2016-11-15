@@ -15,14 +15,15 @@ Description: Data Type class for dpgen program
 #include<algorithm>
 //#include"DatapathComponent.h"
 
-class DatapathComponent;
+class Node;
 
 class DataType {
 protected:
 	std::string name;
 	int dataWidth;
 	bool signUnsigned; //used to see if variable is singed or unsigned (1 signed, 0 unsigned)
-
+	std::vector<Node*> comingFrom;
+	std::vector<Node*> goingTo;
 
 public:
 	/*Methods*/
@@ -32,6 +33,12 @@ public:
 	void setDataWidth(int dW);
 	bool getSignUnsigned();
 	void setSignUnsiged(bool sU);
+	std::vector<Node*> getGoingTo();
+	void setGoingTo(std::vector<Node*> gT);
+	std::vector<Node*> getComingFrom();
+	void setComingFrom(std::vector<Node*> cF);
+	void addToGoingTo(Node* newComponent);
+	void addToComingFrom(Node* newComponent);
 
 };
 #endif // DATATYPE_H

@@ -9,6 +9,10 @@ Description: HLSM class definitions for hlysn program
 #include "HLSM.h"
 using namespace std;
 
+HLSM::HLSM() {
+
+}
+
 bool HLSM::readFile(char* fileName)
 {
 	ifstream inputFile;
@@ -138,23 +142,47 @@ bool HLSM::readFile(char* fileName)
 		}
 		checkString = "";
 	}
-	//for (i = 0; i < (int)_nodes.size(); ++i) {
-	//	_datapathComponents.at(i).determineDataWidth();
-	//	_datapathComponents.at(i).assignDelay();
-	//	_datapathComponents.at(i).checkIfSigned();
-	//	//set going to for inputs
-	//	for (j = 0; j < (int)_datapathComponents.at(i).getInputs().size(); ++j) {
-	//		(*_datapathComponents.at(i).getInputs().at(j)).addToGoingTo(&_datapathComponents.at(i));
-	//	}
-	//	//sets coming from for outputs
-	//	for (j = 0; j < (int)_datapathComponents.at(i).getOutputs().size(); ++j) {
-	//		(*_datapathComponents.at(i).getOutputs().at(j)).addToComingFrom(&_datapathComponents.at(i));
-	//	}
-	//}
+	for (i = 0; i < (int)_nodes.size(); ++i) {
+		//_datapathComponents.at(i).determineDataWidth();
+		//_nodes.at(i).assignDelay();
+		//_datapathComponents.at(i).checkIfSigned();
+		//set going to for inputs
+		for (j = 0; j < (int)_nodes.at(i).getInputs().size(); ++j) {
+			(*_nodes.at(i).getInputs().at(j)).addToGoingTo(&_nodes.at(i));
+		}
+		//sets coming from for outputs
+		for (j = 0; j < (int)_nodes.at(i).getOutputs().size(); ++j) {
+			(*_nodes.at(i).getOutputs().at(j)).addToComingFrom(&_nodes.at(i));
+		}
+	}
+
+	createUnscheduledGraph();
 
 	inputFile.close();
 	return true;
 
+}
+
+void HLSM::createUnscheduledGraph()
+{
+	int i = 0;
+	int j = 0;
+	int k = 0;
+
+	for (i = 0; i < (int)_nodes.size(); ++i) {
+		if (_nodes.at(i).getOperation().compare("?")) {
+			_nodes.at(i).setNextNodes(_nodes.at(i).getOutputs().at(0)->getGoingTo());
+			for (j = 0; j < (int)_nodes.at(i).getInputs().size(); ++j) {
+				if (_nodes.at(i).getInputs().at(j)->getComingFrom().size() != 0) {
+					_nodes.at(i).addPreviousNode(_nodes.at(i).getInputs().at(j)->getComingFrom().at(0));
+				}
+			}
+		}
+		else {
+			_nodes.at(i).setNextNodes(_nodes.at(i).getOutputs().at(0)->getGoingTo());
+			_nodes.at(i).setPreviousNodes(_nodes.at(i).getInputs().at(0)->getComingFrom());
+		}
+	}
 }
 
 bool HLSM::writeToFile(char* fileName)
@@ -488,9 +516,9 @@ void HLSM::createNewOutput(std::string name, bool sign, int dataWidth)
 
 void HLSM::createNewVariable(std::string name, bool sign, int dataWidth)
 {
-	Wire* newWire = new Wire(name, sign, dataWidth);
+	Variable* newVariable = new Variable(name, sign, dataWidth);
 
-	_wires.push_back(newWire);
+	_variables.push_back(newVariable);
 }
 
 
@@ -509,8 +537,8 @@ bool HLSM::checkVariable(std::string checkName, int* outputIndex, int* inputInde
 	}
 
 	/*check if in wires*/
-	for (i = 0; i < (int)_wires.size(); ++i) {
-		if (!(*_wires.at(i)).getName().compare(checkName)) {
+	for (i = 0; i < (int)_variables.size(); ++i) {
+		if (!(*_variables.at(i)).getName().compare(checkName)) {
 			variableFound = true;
 			*wireIndex = i;
 			break;
@@ -600,6 +628,7 @@ bool HLSM::determineOperation(std::string line, DataType* output)
 	}
 	if (result) {
 		createNewNode(componentType, _nodes.size() + 1, componentInputs, componentOutputs);
+		componentType = "";
 	}
 	return result;
 
@@ -621,7 +650,9 @@ bool HLSM::checkValidSymbol(std::string checkSymbol, std::string* operation)
 	for (i = 0; i < 13; i++) {
 		if (!checkSymbol.compare(validSymbols[i])) {
 			foundValidSymbol = true;
-			*operation = validSymbols[i];
+			if ((*operation).compare("?")) {
+				*operation = validSymbols[i];
+			}
 			break;
 		}
 	}
@@ -633,45 +664,45 @@ bool HLSM::checkValidSymbol(std::string checkSymbol, std::string* operation)
 bool HLSM::writeInputsToFile(ofstream *outputFile, int i, int j)
 {
 
-	/* Make sure it is still open. */
-	if (!(*outputFile).is_open()) {
-		return false;
-	}
+	///* Make sure it is still open. */
+	//if (!(*outputFile).is_open()) {
+	//	return false;
+	//}
 
-	/* Bit-width Matching. */
-	if ((*_datapathComponents.at(i).getInputs().at(j)).getDataWidth() == _datapathComponents.at(i).getDataWidth()) {
-		(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName() << ", ";
-	}
-	else if ((*_datapathComponents.at(i).getInputs().at(j)).getDataWidth() < _datapathComponents.at(i).getDataWidth()) { // Datapath width is larger than input.
-		if ((*_datapathComponents.at(i).getInputs().at(j)).getSignUnsigned()) { // Signed
-																				// Sign extensions for 2's complement. 
-			(*outputFile) << "{{";
-			(*outputFile) << _datapathComponents.at(i).getDataWidth() - (*_datapathComponents.at(i).getInputs().at(j)).getDataWidth();
-			(*outputFile) << "{";
-			(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName();
-			(*outputFile) << "[";
-			(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getDataWidth() - 1;
-			(*outputFile) << "]}},";
-			(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName();
-			(*outputFile) << "}, ";
+	///* Bit-width Matching. */
+	//if ((*_nodes.at(i).getInputs().at(j)).getDataWidth() == _nodes.at(i).getDataWidth()) {
+	//	(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName() << ", ";
+	//}
+	//else if ((*_datapathComponents.at(i).getInputs().at(j)).getDataWidth() < _datapathComponents.at(i).getDataWidth()) { // Datapath width is larger than input.
+	//	if ((*_datapathComponents.at(i).getInputs().at(j)).getSignUnsigned()) { // Signed
+	//																			// Sign extensions for 2's complement. 
+	//		(*outputFile) << "{{";
+	//		(*outputFile) << _datapathComponents.at(i).getDataWidth() - (*_datapathComponents.at(i).getInputs().at(j)).getDataWidth();
+	//		(*outputFile) << "{";
+	//		(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName();
+	//		(*outputFile) << "[";
+	//		(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getDataWidth() - 1;
+	//		(*outputFile) << "]}},";
+	//		(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName();
+	//		(*outputFile) << "}, ";
 
-		}
-		else { // Unsigned
-			(*outputFile) << "{";
-			(*outputFile) << _datapathComponents.at(i).getDataWidth() - (*_datapathComponents.at(i).getInputs().at(j)).getDataWidth();
-			(*outputFile) << "'b0,";
-			(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName();
-			(*outputFile) << "}, ";
-		}
-	}
-	else { // Datapath width is smaller than input.
+	//	}
+	//	else { // Unsigned
+	//		(*outputFile) << "{";
+	//		(*outputFile) << _datapathComponents.at(i).getDataWidth() - (*_datapathComponents.at(i).getInputs().at(j)).getDataWidth();
+	//		(*outputFile) << "'b0,";
+	//		(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName();
+	//		(*outputFile) << "}, ";
+	//	}
+	//}
+	//else { // Datapath width is smaller than input.
 
-		   /* This way chops the last bits and uses those. */
-		(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName();
-		(*outputFile) << "[";
-		(*outputFile) << _datapathComponents.at(i).getDataWidth() - 1;
-		(*outputFile) << ":0], ";
-	}
+	//	   /* This way chops the last bits and uses those. */
+	//	(*outputFile) << (*_datapathComponents.at(i).getInputs().at(j)).getName();
+	//	(*outputFile) << "[";
+	//	(*outputFile) << _datapathComponents.at(i).getDataWidth() - 1;
+	//	(*outputFile) << ":0], ";
+	//}
 
 	return true;
 }
@@ -1280,44 +1311,44 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	sind64 = false;
 
 	/* Categorize if there are certain datawidths. */
-	for (i = 0; i < (int)_wires.size(); i++) {
-		if (!(*_wires.at(i)).getSignUnsigned()) {
-			if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_1) {
+	for (i = 0; i < (int)_variables.size(); i++) {
+		if (!(*_variables.at(i)).getSignUnsigned()) {
+			if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_1) {
 				ind1 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_2) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_2) {
 				ind2 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_8) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_8) {
 				ind8 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_16) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_16) {
 				ind16 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_32) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_32) {
 				ind32 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_64) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_64) {
 				ind64 = true;
 			}
 		}
 		else {
-			if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_1) {
+			if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_1) {
 				sind1 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_2) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_2) {
 				sind2 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_8) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_8) {
 				sind8 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_16) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_16) {
 				sind16 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_32) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_32) {
 				sind32 = true;
 			}
-			else if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_64) {
+			else if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_64) {
 				sind64 = true;
 			}
 		}
@@ -1326,14 +1357,14 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	/* Check for each datawidth. */
 	if (ind1) {
 		k = 0;
-		*outputFile << "\t" << "wire ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if (!(*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_1) {
+		*outputFile << "\t" << "reg ";
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if (!(*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_1) {
 					if (k) {
 						*outputFile << ", ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1343,13 +1374,13 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (sind1) {
 		k = 0;
 		*outputFile << "\t" << "wire signed ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if ((*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_1) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if ((*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_1) {
 					if (k) {
 						*outputFile << ", ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1359,16 +1390,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (ind2) {
 		k = 0;
 		*outputFile << "\t" << "wire ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if (!(*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_2) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if (!(*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_2) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[1:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1378,16 +1409,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (sind2) {
 		k = 0;
 		*outputFile << "\t" << "wire signed ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if ((*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_2) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if ((*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_2) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[1:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1397,16 +1428,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (ind8) {
 		k = 0;
 		*outputFile << "\t" << "wire ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if (!(*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_8) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if (!(*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_8) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[7:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1416,16 +1447,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (sind8) {
 		k = 0;
 		*outputFile << "\t" << "wire signed ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if ((*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_8) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if ((*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_8) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[7:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1435,16 +1466,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (ind16) {
 		k = 0;
 		*outputFile << "\t" << "wire ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if (!(*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_16) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if (!(*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_16) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[15:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1454,16 +1485,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (sind16) {
 		k = 0;
 		*outputFile << "\t" << "wire signed ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if ((*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_16) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if ((*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_16) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[15:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1473,16 +1504,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (ind32) {
 		k = 0;
 		*outputFile << "\t" << "wire ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if (!(*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_32) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if (!(*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_32) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[31:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1492,16 +1523,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (sind32) {
 		k = 0;
 		*outputFile << "\t" << "wire signed ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if ((*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_32) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if ((*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_32) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[31:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1511,16 +1542,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (ind64) {
 		k = 0;
 		*outputFile << "\t" << "wire ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if (!(*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_64) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if (!(*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_64) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[63:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1530,16 +1561,16 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	if (sind64) {
 		k = 0;
 		*outputFile << "\t" << "wire signed ";
-		for (i = 0; i < (int)_wires.size(); i++) {
-			if ((*_wires.at(i)).getSignUnsigned()) {
-				if ((*_wires.at(i)).getDataWidth() == DATAWIDTH_64) {
+		for (i = 0; i < (int)_variables.size(); i++) {
+			if ((*_variables.at(i)).getSignUnsigned()) {
+				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_64) {
 					if (k) {
 						*outputFile << ", ";
 					}
 					else {
 						*outputFile << "[63:0] ";
 					}
-					*outputFile << (*_wires.at(i)).getName();
+					*outputFile << (*_variables.at(i)).getName();
 					k = 1;
 				}
 			}
@@ -1551,7 +1582,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	/* Check for all N/A wires are necessary. */
 	k = 0;
 	j = 0;
-	for (i = 0; i < (int)_datapathComponents.size(); i++) {
+	/*for (i = 0; i < (int)_datapathComponents.size(); i++) {
 		if ((!_datapathComponents.at(i).getName().compare("COMP_lt"))
 			|| (!_datapathComponents.at(i).getName().compare("SCOMP_lt"))
 			|| (!_datapathComponents.at(i).getName().compare("COMP_gt"))
@@ -1565,7 +1596,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 			*outputFile << "na" << k << ";" << endl;
 			k++;
 		}
-	}
+	}*/
 	/* Spacing */
 	if (j == 1) {
 		*outputFile << endl;

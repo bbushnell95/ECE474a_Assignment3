@@ -64,6 +64,26 @@ void Node::setOutputs(std::vector<DataType*> _outputs)
 	_componentOutputs = _outputs;
 }
 
+std::vector<Node*> Node::getPreviousNodes()
+{
+	return previousNodes;
+}
+
+void Node::setPreviousNodes(std::vector<Node*> pN)
+{
+	previousNodes = pN;
+}
+
+std::vector<Node*> Node::getNextNodes()
+{
+	return nextNodes;
+}
+
+void Node::setNextNodes(std::vector<Node*> nN)
+{
+	nextNodes = nN;
+}
+
 char Node::getVisted()
 {
 	return visited;
@@ -83,3 +103,10 @@ void Node::addOutput(DataType* newOutput)
 {
 	_componentOutputs.push_back(newOutput);
 }
+
+void Node::addPreviousNode(Node * previousNode)
+{
+	previousNodes.push_back(previousNode);
+}
+
+
