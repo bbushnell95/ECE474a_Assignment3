@@ -38,7 +38,6 @@ int main(int argc, char *argv[])
 
 	/* TODO: THE REAL WORK WILL HAPPEN HERE. */
 
-
 	/* Write to the verilog file */
 	if (!newHLSM.writeToFile(argv[3])) {
 		cout << endl;

@@ -227,7 +227,7 @@ bool HLSM::writeToFile(char* fileName)
 	}
 	outputFile << ");" << endl;
 
-	/* Print clk, rst. */
+	/* Print Clk, Rst. */
 	// outputFile << "\t" << "input clk, rst;" << endl;
 	outputFile << "\t" << "input Clk, Rst, Start;" << endl;
 	outputFile << "\t" << "output reg Done;" << endl;
@@ -235,153 +235,54 @@ bool HLSM::writeToFile(char* fileName)
 	/* Print Inputs, Outputs, Wires. */
 	writeVarsToFile(&outputFile);
 
-	/* WRITE THE DATAPATH COMPONENTS. */
-	k = 0;
-	for (i = 0; i < (int)_datapathComponents.size(); i++) {
-		outputFile << "\t";
-		/* Which module is it? */
-		if ((!_datapathComponents.at(i).getName().compare("COMP_lt"))
-			|| (!_datapathComponents.at(i).getName().compare("COMP_gt"))
-			|| (!_datapathComponents.at(i).getName().compare("COMP_eq"))) {
-			outputFile << "COMP";
-		}
-		else if ((!_datapathComponents.at(i).getName().compare("SCOMP_lt"))
-			|| (!_datapathComponents.at(i).getName().compare("SCOMP_gt"))
-			|| (!_datapathComponents.at(i).getName().compare("SCOMP_eq"))) {
-			outputFile << "SCOMP";
-		}
-		else {
-			outputFile << _datapathComponents.at(i).getName();
-		}
+	/* Print the State, NextState */
+	outputFile << "\t" << "reg[";
+	// outputFie << /* TODO! */
+	outputFile << ":0] State, NextState;" << endl;
 
-		/* What is the Datawidth? */
-		outputFile << " #(";
-		outputFile << _datapathComponents.at(i).getDataWidth();
-		outputFile << ") ";
+	/* Print the parameters */
+	outputFile << "\t" << "parameter";
+	outputFile << "Wait = 0,";
+	/* TODO! */
+	// for (i = 0; i < ) {
+		outputFile << " s" << i + 2 << " = " << i + 1 << ",";
+		// }
+	outputFile << "Final = " << i + 2 << ";" << endl;
 
-		/* Name the module. */
-		if ((!_datapathComponents.at(i).getName().compare("COMP_lt"))
-			|| (!_datapathComponents.at(i).getName().compare("COMP_gt"))
-			|| (!_datapathComponents.at(i).getName().compare("COMP_eq"))) {
-			outputFile << "COMP";
+	/* Create the case statements. */
+	outputFile << "\t" << "always@(";
+	for (i = 0; i < (int)_outputs.size(); i++) {
+		outputFile << (*_outputs.at(i)).getName();
+		if (i != (int)_outputs.size() - 1) {
+			outputFile << ", ";
 		}
-		else if ((!_datapathComponents.at(i).getName().compare("SCOMP_lt"))
-			|| (!_datapathComponents.at(i).getName().compare("SCOMP_gt"))
-			|| (!_datapathComponents.at(i).getName().compare("SCOMP_eq"))) {
-			outputFile << "SCOMP";
-		}
-		else {
-			outputFile << _datapathComponents.at(i).getName();
-		}
-
-		/* REG */
-		outputFile << "_" << i << "(";
-		if ((!_datapathComponents.at(i).getName().compare("REG"))
-			|| (!_datapathComponents.at(i).getName().compare("SREG"))) {
-			outputFile << (*_datapathComponents.at(i).getInputs().at(0)).getName() << ", ";
-			outputFile << "clk, rst, ";
-			outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName();
-		}
-		/* ADD, SUB, MUL, DIV, MOD, SHL, SHR, INC, DEC */
-		else if ((!_datapathComponents.at(i).getName().compare("ADD"))
-			|| (!_datapathComponents.at(i).getName().compare("SADD"))
-			|| (!_datapathComponents.at(i).getName().compare("SUB"))
-			|| (!_datapathComponents.at(i).getName().compare("SSUB"))
-			|| (!_datapathComponents.at(i).getName().compare("MUL"))
-			|| (!_datapathComponents.at(i).getName().compare("SMUL"))
-			|| (!_datapathComponents.at(i).getName().compare("DIV"))
-			|| (!_datapathComponents.at(i).getName().compare("SDIV"))
-			|| (!_datapathComponents.at(i).getName().compare("MOD"))
-			|| (!_datapathComponents.at(i).getName().compare("SMOD"))
-			|| (!_datapathComponents.at(i).getName().compare("SHR"))
-			|| (!_datapathComponents.at(i).getName().compare("SSHR"))
-			|| (!_datapathComponents.at(i).getName().compare("SHL"))
-			|| (!_datapathComponents.at(i).getName().compare("SSHL"))
-			|| (!_datapathComponents.at(i).getName().compare("INC"))
-			|| (!_datapathComponents.at(i).getName().compare("SINC"))
-			|| (!_datapathComponents.at(i).getName().compare("DEC"))
-			|| (!_datapathComponents.at(i).getName().compare("SDEC"))) {
-			for (j = 0; j < (int)_datapathComponents.at(i).getInputs().size(); j++) {
-				writeInputsToFile(&outputFile, i, j);
-			}
-
-			outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName();
-		}
-		/* MUX2x1 */
-		else if ((!_datapathComponents.at(i).getName().compare("MUX2x1"))
-			|| (!_datapathComponents.at(i).getName().compare("SMUX2x1"))) {
-			// MUX2x1(a, b, sel, d);
-			for (j = 1; j <= 2; j++) {
-				writeInputsToFile(&outputFile, i, j);
-			}
-			/* Select bit. */
-			if ((*_datapathComponents.at(i).getInputs().at(0)).getDataWidth() != 1) {
-				outputFile << (*_datapathComponents.at(i).getInputs().at(0)).getName() << "[0], ";
-			}
-			else {
-				outputFile << (*_datapathComponents.at(i).getInputs().at(0)).getName() << ", ";
-			}
-			outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName();
-		}
-		/* COMP_gt */
-		else if ((!_datapathComponents.at(i).getName().compare("COMP_gt"))
-			|| (!_datapathComponents.at(i).getName().compare("SCOMP_gt"))) {
-			for (j = 0; j < (int)_datapathComponents.at(i).getInputs().size(); j++) {
-				writeInputsToFile(&outputFile, i, j);
-			}
-			if ((*_datapathComponents.at(i).getOutputs().at(0)).getDataWidth() != 1) {
-				outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName() << "[0], ";
-			}
-			else {
-				outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName() << ", ";
-			}
-			/* Old way:
-			outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName() << ", ";
-			*/
-			outputFile << "na" << k << ", ";
-			k++;
-			outputFile << "na" << k;
-			k++;
-		}
-		/* COMP_lt */
-		else if ((!_datapathComponents.at(i).getName().compare("COMP_lt"))
-			|| (!_datapathComponents.at(i).getName().compare("SCOMP_lt"))) {
-			for (j = 0; j < (int)_datapathComponents.at(i).getInputs().size(); j++) {
-				writeInputsToFile(&outputFile, i, j);
-			}
-			outputFile << "na" << k << ", ";
-			k++;
-			if ((*_datapathComponents.at(i).getOutputs().at(0)).getDataWidth() != 1) {
-				outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName() << "[0], ";
-			}
-			else {
-				outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName() << ", ";
-			}
-			outputFile << "na" << k;
-			k++;
-		}
-		/* COMP_eq */
-		else if ((!_datapathComponents.at(i).getName().compare("COMP_eq"))
-			|| (!_datapathComponents.at(i).getName().compare("SCOMP_eq"))) {
-			for (j = 0; j < (int)_datapathComponents.at(i).getInputs().size(); j++) {
-				writeInputsToFile(&outputFile, i, j);
-			}
-			outputFile << "na" << k << ", ";
-			k++;
-			outputFile << "na" << k << ", ";
-			k++;
-			if ((*_datapathComponents.at(i).getOutputs().at(0)).getDataWidth() != 1) {
-				outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName() << "[0]";
-			}
-			else {
-				outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName();
-			}
-			/* Old way:
-			outputFile << (*_datapathComponents.at(i).getOutputs().at(0)).getName();
-			*/
-		}
-		outputFile << ");" << endl;
 	}
+	outputFile << "State) begin" << endl;
+	outputFile << "\t\t" << "case(State)" << endl;
+	
+	/* Wait State. */
+	outputFile << "\t\t\t" << "Wait: begin" << endl;
+	outputFile << "\t\t\t\t" << "if (Start)" << endl;
+	outputFile << "\t\t\t\t\t" << "NextState <= s2;" << endl;
+	outputFile << "\t\t\t\t" << "else" << endl;
+	outputFile << "\t\t\t\t\t" << "NextState <= Init;" << endl;
+	outputFile << "\t\t\t" << "end" << endl;
+
+	/* TODO! */
+
+	/* Final State. */
+	outputFile << "\t\t\t" << "Final: begin" << endl;
+	outputFile << "\t\t\t\t" << "Done = 1;" << endl;
+	outputFile << "\t\t\t\t" << "NextState <= Wait;" << endl;
+	outputFile << "\t\t\t" << "end" << endl;
+
+	/* Create the dependence upon Clk and Rst. */
+	outputFile << "\t" << "always@(posedge Clk) begin" << endl;
+	outputFile << "\t\t" << "if (Rst)" << endl;
+	outputFile << "\t\t\t" << "State <= Init;";
+	outputFile << "\t\t" << "else" << endl;
+	outputFile << "\t\t\t" << "State <= NextState;" << endl;
+	outputFile << "\t" << "end" << endl;
 
 	/* End Module. */
 	outputFile << endl << "endmodule" << endl;
