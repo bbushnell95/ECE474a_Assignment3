@@ -51,6 +51,7 @@ public:
 	/*Methods*/
 	bool readFile(char* fileName);
 	void createUnscheduledGraph();
+	void scheduleGraph(int latency);
 	bool writeToFile(char* fileName);
 	//void determineCriticalPath();
 	//void visitComponent(DatapathComponent * compoenent, double currTime, double* cP);

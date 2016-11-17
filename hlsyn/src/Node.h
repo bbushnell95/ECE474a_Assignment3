@@ -16,6 +16,13 @@ Description: Node Class for hlsyn program
 #include<algorithm>
 #include"DataType.h"
 
+
+//Delays of type of operation (cycles)
+#define MULT_DELAY 2
+#define DIV_MOD_DELAY 3
+#define LOGIC_DELAY 1
+#define ADD_SUB_DELAY 1
+
 class Node {
 private:
 	std::string operation;
@@ -24,36 +31,9 @@ private:
 	std::vector<DataType*> _componentOutputs;
 	std::vector<Node*> previousNodes;
 	std::vector<Node*> nextNodes;
+	int delay;
 	char visited;
 
-	///* Datapath Component inputs */
-
-
-	///* Datapath Component outputs */
-	//Wire outWire;
-	//Output outWire;
-
-	///* FOR INFORMATION ONLY
-	//	std::string validSymbols[13] = { "=","+" ,"-", "*", ">", "<","==", "?", ":", ">>", "<<", "/", "%"};
-	//*/
-	///*
-	//FUNCT___SYM___
-	//REG		=
-	//ADD		+
-	//SUB		-
-	//MUL		*
-	//COMP	<
-	//COMP	>
-	//COMP	==
-	//MUX2x1	? :
-	//SHR		>>
-	//SHL		<<
-	//DIV		/
-	//MOD		%
-	//INC		+1
-	//DEC		-1
-	//*/
-	//std::string component[12];
 
 public:
 	/*Constructors*/
@@ -75,10 +55,13 @@ public:
 	void setNextNodes(std::vector<Node*> nN);
 	char getVisted();
 	void setVisted(char v);
+	int getDelay();
+	void setDelay(int d);
 	void addInput(DataType* newInput);
 	void addOutput(DataType* newOutput);
 	void addPreviousNode(Node* previousNode);
 	void addNextNode(Node* nextNode);
+	void assignDelay();
 
 };
 

@@ -144,7 +144,7 @@ bool HLSM::readFile(char* fileName)
 	}
 	for (i = 0; i < (int)_nodes.size(); ++i) {
 		//_datapathComponents.at(i).determineDataWidth();
-		//_nodes.at(i).assignDelay();
+		_nodes.at(i).assignDelay();
 		//_datapathComponents.at(i).checkIfSigned();
 		//set going to for inputs
 		for (j = 0; j < (int)_nodes.at(i).getInputs().size(); ++j) {
@@ -192,6 +192,21 @@ void HLSM::createUnscheduledGraph()
 			_nodes.at(i).setPreviousNodes(_nodes.at(i).getInputs().at(0)->getComingFrom());
 		}
 	}
+}
+
+/*FDS( G(V,E), lambda){
+	repeat{
+		Compute the time frames;
+		Compute the operations and type probabilities;
+		Compute the self-forces, predcessor/successor forces and total forces;
+		Schedule the operation with least force and update its time-frame;
+	} until (all operations scheduled);
+	return (t);
+*/
+
+void HLSM::scheduleGraph(int latency)
+{
+
 }
 
 bool HLSM::writeToFile(char* fileName)
@@ -564,6 +579,7 @@ bool HLSM::checkVariable(std::string checkName, int* outputIndex, int* inputInde
 	}
 	return variableFound;
 }
+
 bool HLSM::determineOperation(std::string line, DataType* output)
 {
 	int i = 0;

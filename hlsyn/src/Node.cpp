@@ -11,6 +11,7 @@ Description: Node Class for hlsyn program
 Node::Node()
 {
 	nodeNum = 0;
+	delay = 0;
 	visited = 'w';
 }
 
@@ -21,6 +22,7 @@ Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<D
 	_componentInputs = _inputs;
 	_componentOutputs = _outputs;
 	visited = 'w';
+	delay = 0;
 
 }
 
@@ -94,6 +96,16 @@ void Node::setVisted(char v)
 	visited = v;
 }
 
+int Node::getDelay()
+{
+	return delay;
+}
+
+void Node::setDelay(int d)
+{
+	delay = d;
+}
+
 void Node::addInput(DataType* newInput)
 {
 	_componentInputs.push_back(newInput);
@@ -112,6 +124,22 @@ void Node::addPreviousNode(Node * previousNode)
 void Node::addNextNode(Node * nextNode) 
 {
 	nextNodes.push_back(nextNode);
+}
+
+void Node::assignDelay()
+{
+	if (!operation.compare("*")) {
+		delay = MULT_DELAY;
+	}
+	else if (!operation.compare("/") || !operation.compare("%")) {
+		delay = DIV_MOD_DELAY;
+	}
+	else if (!operation.compare("+") || !operation.compare("-")) {
+		delay = ADD_SUB_DELAY;
+	}
+	else {
+		delay = LOGIC_DELAY;
+	}
 }
 
 
