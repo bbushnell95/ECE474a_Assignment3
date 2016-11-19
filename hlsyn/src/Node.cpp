@@ -13,6 +13,9 @@ Node::Node()
 	nodeNum = 0;
 	delay = 0;
 	visited = 'w';
+	cycleAllowed = 0;
+	timeFrame[0] = 0;
+	timeFrame[1] = 0;
 }
 
 Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<DataType*> _outputs)
@@ -23,6 +26,9 @@ Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<D
 	_componentOutputs = _outputs;
 	visited = 'w';
 	delay = 0;
+	cycleAllowed = 0;
+	timeFrame[0] = 0;
+	timeFrame[1] = 1;
 
 }
 
@@ -105,6 +111,17 @@ void Node::setDelay(int d)
 {
 	delay = d;
 }
+
+int Node::getCycleAllowed()
+{
+	return cycleAllowed;
+}
+
+void Node::setCycleAllowed(int cA)
+{
+	cycleAllowed = cA;
+}
+
 
 void Node::addInput(DataType* newInput)
 {

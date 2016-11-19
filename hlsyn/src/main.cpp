@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	newHLSM.scheduleGraph(7);
 	/* TODO: THE REAL WORK WILL HAPPEN HERE. */
 
 	/* Write to the verilog file */

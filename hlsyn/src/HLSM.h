@@ -41,6 +41,9 @@ private:
 	std::vector<Output*> _outputs;
 	std::vector<Variable*> _variables;
 	std::vector<Node> _nodes;
+	std::vector<std::vector<Node*>> _asapSchedule;
+	std::vector<std::vector<Node*>> _alapShcedule;
+	std::vector<std::vector<Node*>> _forceDirectedSchedule;
 	
 
 public:
@@ -52,6 +55,8 @@ public:
 	bool readFile(char* fileName);
 	void createUnscheduledGraph();
 	void scheduleGraph(int latency);
+	void asapSchedule(int latency);
+	void alapSchedule(int latency);
 	bool writeToFile(char* fileName);
 	//void determineCriticalPath();
 	//void visitComponent(DatapathComponent * compoenent, double currTime, double* cP);

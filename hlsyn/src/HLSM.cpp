@@ -206,8 +206,59 @@ void HLSM::createUnscheduledGraph()
 
 void HLSM::scheduleGraph(int latency)
 {
-
+	asapSchedule(latency);
 }
+
+void HLSM::asapSchedule(int latency)
+{
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	int previousCounter = 0;
+
+	//create empty vectors in vector of vectors
+	for (i = 0; i < latency; ++i) {
+		_asapSchedule.push_back(vector<Node*>());
+	}
+	//go through each time cycle
+	for (i = 0; i < latency; ++i) {
+		//go through each unscheduled node
+		for (j = 0; j < _nodes.size(); ++j) {
+			if (i == 0) {
+				//if there are no previous nodes, current node goes into time 1 for asap
+				if (_nodes.at(j).getPreviousNodes().size() == 0) {
+					_asapSchedule[i].push_back(&(_nodes.at(j)));
+					
+					//Need to account for the delay if there is one
+					for (k = 0; k < _nodes.at(j).getNextNodes().size(); ++k) {
+						if (i + _nodes.at(j).getDelay() > _nodes.at(j).getNextNodes().at(k)->getCycleAllowed()) {
+							_nodes.at(j).getNextNodes().at(k)->setCycleAllowed(i + _nodes.at(j).getDelay());
+						}
+					}
+				}
+			}
+			else {
+				//schedule node if allowed cycle is equal to i
+				if (_nodes.at(j).getCycleAllowed() == i) {
+					_asapSchedule[i].push_back(&(_nodes.at(j)));
+					
+					//update nodes allowed cycle time
+					for (k = 0; k < _nodes.at(j).getNextNodes().size(); ++k) {
+						if (i + _nodes.at(j).getDelay() > _nodes.at(j).getNextNodes().at(k)->getCycleAllowed()) {
+							_nodes.at(j).getNextNodes().at(k)->setCycleAllowed(i + _nodes.at(j).getDelay());
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void HLSM::alapSchedule(int latency)
+{
+}
+
+
 
 bool HLSM::writeToFile(char* fileName)
 {
@@ -345,8 +396,6 @@ bool HLSM::writeToFile(char* fileName)
 	return true;
 
 }
-
-
 
 void HLSM::createNewInputVariable(std::string checkString, int dataWidthIndex)
 {
