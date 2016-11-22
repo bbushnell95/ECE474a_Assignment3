@@ -207,6 +207,7 @@ void HLSM::createUnscheduledGraph()
 void HLSM::scheduleGraph(int latency)
 {
 	asapSchedule(latency);
+	alapSchedule(latency);
 }
 
 void HLSM::asapSchedule(int latency)
@@ -214,7 +215,7 @@ void HLSM::asapSchedule(int latency)
 	int i = 0;
 	int j = 0;
 	int k = 0;
-	int previousCounter = 0;
+
 
 	//create empty vectors in vector of vectors
 	for (i = 0; i < latency; ++i) {
@@ -228,6 +229,7 @@ void HLSM::asapSchedule(int latency)
 				//if there are no previous nodes, current node goes into time 1 for asap
 				if (_nodes.at(j).getPreviousNodes().size() == 0) {
 					_asapSchedule[i].push_back(&(_nodes.at(j)));
+					_nodes.at(j).setAsapTime(i);
 					
 					//Need to account for the delay if there is one
 					for (k = 0; k < _nodes.at(j).getNextNodes().size(); ++k) {
@@ -241,6 +243,7 @@ void HLSM::asapSchedule(int latency)
 				//schedule node if allowed cycle is equal to i
 				if (_nodes.at(j).getCycleAllowed() == i) {
 					_asapSchedule[i].push_back(&(_nodes.at(j)));
+					_nodes.at(j).setAsapTime(i);
 					
 					//update nodes allowed cycle time
 					for (k = 0; k < _nodes.at(j).getNextNodes().size(); ++k) {
@@ -254,8 +257,51 @@ void HLSM::asapSchedule(int latency)
 	}
 }
 
+//NOTE: this assigns the correct time cycle, however if you look at the alap shcedule variable, there is 1 too many nodes. will fix later, but have all info I need
 void HLSM::alapSchedule(int latency)
 {
+	int i = 0;
+	int j = 0;
+	int k = 0;
+
+	for (i = 0; i < _nodes.size(); ++i) {
+		_nodes.at(i).setCycleAllowed(latency - 1);
+	}
+
+	//adding empty vectors to the times
+	for (i = 0; i < latency; ++i) {
+		_alapShcedule.push_back(vector<Node*>());
+	}
+
+	for (i = latency - 1; i >= 0; --i) {
+		for (j = 0; j < _nodes.size(); ++j) {
+			if (i == latency - 1) {
+				if (_nodes.at(j).getNextNodes().size() == 0) {
+					_alapShcedule[i].push_back(&(_nodes.at(j)));
+					_nodes.at(j).setAlapTime(i);
+
+					for (k = 0; k < _nodes.at(j).getPreviousNodes().size(); ++k) {
+						if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+							_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						}
+					}
+				}
+			}
+			else {
+				if (_nodes.at(j).getCycleAllowed() == i) {
+					_alapShcedule[i].push_back(&(_nodes.at(j)));
+					_nodes.at(j).setAlapTime(i);
+
+					//update nodes allowed cycle time
+					for (k = 0; k < _nodes.at(j).getPreviousNodes().size(); ++k) {
+						if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+							_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 

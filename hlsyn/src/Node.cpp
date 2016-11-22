@@ -14,8 +14,8 @@ Node::Node()
 	delay = 0;
 	visited = 'w';
 	cycleAllowed = 0;
-	timeFrame[0] = 0;
-	timeFrame[1] = 0;
+	asapTime = 0;
+	alapTime = 0;
 }
 
 Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<DataType*> _outputs)
@@ -27,8 +27,8 @@ Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<D
 	visited = 'w';
 	delay = 0;
 	cycleAllowed = 0;
-	timeFrame[0] = 0;
-	timeFrame[1] = 1;
+	asapTime = 0;
+	alapTime = 0;
 
 }
 
@@ -120,6 +120,26 @@ int Node::getCycleAllowed()
 void Node::setCycleAllowed(int cA)
 {
 	cycleAllowed = cA;
+}
+
+int Node::getAsapTime()
+{
+	return asapTime;
+}
+
+void Node::setAsapTime(int asT)
+{
+	asapTime = asT;
+}
+
+int Node::getAlapTime()
+{
+	return alapTime;
+}
+
+void Node::setAlapTime(int alT)
+{
+	alapTime = alT;
 }
 
 

@@ -33,7 +33,8 @@ private:
 	std::vector<Node*> nextNodes;
 	int delay;
 	int cycleAllowed;   //this accounts for the delay of certain nodes
-	int timeFrame[2];
+	int asapTime;
+	int alapTime;
 	char visited;
 
 
@@ -61,6 +62,10 @@ public:
 	void setDelay(int d);
 	int getCycleAllowed();
 	void setCycleAllowed(int cA);
+	int getAsapTime();
+	void setAsapTime(int asT);
+	int getAlapTime();
+	void setAlapTime(int alT);
 	void addInput(DataType* newInput);
 	void addOutput(DataType* newOutput);
 	void addPreviousNode(Node* previousNode);
