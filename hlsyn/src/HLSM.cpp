@@ -208,6 +208,7 @@ void HLSM::scheduleGraph(int latency)
 {
 	asapSchedule(latency);
 	alapSchedule(latency);
+	calculateOperationProbablity(latency);
 }
 
 void HLSM::asapSchedule(int latency)
@@ -301,6 +302,15 @@ void HLSM::alapSchedule(int latency)
 				}
 			}
 		}
+	}
+}
+
+void HLSM::calculateOperationProbablity(int latency)
+{
+	int i = 0;
+
+	for (i = 0; i < _nodes.size(); ++i) {
+		_nodes.at(i).assignOperationProbability(latency);
 	}
 }
 

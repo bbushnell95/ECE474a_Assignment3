@@ -31,6 +31,7 @@ private:
 	std::vector<DataType*> _componentOutputs;
 	std::vector<Node*> previousNodes;
 	std::vector<Node*> nextNodes;
+	std::vector<double> _operationProbability;
 	int delay;
 	int cycleAllowed;   //this accounts for the delay of certain nodes
 	int asapTime;
@@ -56,6 +57,8 @@ public:
 	void setPreviousNodes(std::vector<Node*> pN);
 	std::vector<Node*> getNextNodes();
 	void setNextNodes(std::vector<Node*> nN);
+	std::vector<double> getOperationProbability();
+	void setOperationProbability(std::vector<double> oP);
 	char getVisted();
 	void setVisted(char v);
 	int getDelay();
@@ -70,6 +73,7 @@ public:
 	void addOutput(DataType* newOutput);
 	void addPreviousNode(Node* previousNode);
 	void addNextNode(Node* nextNode);
+	void assignOperationProbability(int latency);
 	void assignDelay();
 
 };

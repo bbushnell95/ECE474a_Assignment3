@@ -57,6 +57,7 @@ public:
 	void scheduleGraph(int latency);
 	void asapSchedule(int latency);
 	void alapSchedule(int latency);
+	void calculateOperationProbablity(int latency);
 	bool writeToFile(char* fileName);
 	//void determineCriticalPath();
 	//void visitComponent(DatapathComponent * compoenent, double currTime, double* cP);

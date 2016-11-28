@@ -92,6 +92,16 @@ void Node::setNextNodes(std::vector<Node*> nN)
 	nextNodes = nN;
 }
 
+std::vector<double> Node::getOperationProbability()
+{
+	return _operationProbability;
+}
+
+void Node::setOperationProbability(std::vector<double> oP)
+{
+	_operationProbability = oP;
+}
+
 char Node::getVisted()
 {
 	return visited;
@@ -161,6 +171,26 @@ void Node::addPreviousNode(Node * previousNode)
 void Node::addNextNode(Node * nextNode) 
 {
 	nextNodes.push_back(nextNode);
+}
+
+void Node::assignOperationProbability(int latency)
+{
+	int i = 0;
+	//double tempProb = 0.0;
+
+	for (i = 0; i < latency; ++i) {
+		if (i >= asapTime && i <= alapTime) {
+			if ((alapTime - asapTime) != 0) {
+				_operationProbability.push_back(1.0 / (alapTime - asapTime + 1.0));
+			}
+			else {
+				_operationProbability.push_back(1);
+			}
+		}
+		else {
+			_operationProbability.push_back(0);
+		}
+	}
 }
 
 void Node::assignDelay()
