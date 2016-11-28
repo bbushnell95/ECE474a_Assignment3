@@ -23,20 +23,25 @@ Description: Node Class for hlsyn program
 #define LOGIC_DELAY 1
 #define ADD_SUB_DELAY 1
 
+//when calculating total forces
+#define NO_FORCE_IN_TIME_CYCLE 9999
+
 class Node {
 private:
 	std::string operation;
 	int nodeNum;
 	std::vector<DataType*> _componentInputs;
 	std::vector<DataType*> _componentOutputs;
-	std::vector<Node*> previousNodes;
-	std::vector<Node*> nextNodes;
+	std::vector<Node*> _previousNodes;
+	std::vector<Node*> _nextNodes;
 	std::vector<double> _operationProbability;
+	std::vector<double> _selfForce;
 	int delay;
 	int cycleAllowed;   //this accounts for the delay of certain nodes
 	int asapTime;
 	int alapTime;
 	char visited;
+	bool scheduled;
 
 
 public:
@@ -69,11 +74,14 @@ public:
 	void setAsapTime(int asT);
 	int getAlapTime();
 	void setAlapTime(int alT);
+	bool getScheduled();
+	void setScheduled(bool s);
 	void addInput(DataType* newInput);
 	void addOutput(DataType* newOutput);
 	void addPreviousNode(Node* previousNode);
 	void addNextNode(Node* nextNode);
 	void assignOperationProbability(int latency);
+	void calculateSelfForce(std::vector<double> typeDistribution);
 	void assignDelay();
 
 };

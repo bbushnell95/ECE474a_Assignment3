@@ -196,10 +196,10 @@ void HLSM::createUnscheduledGraph()
 
 /*FDS( G(V,E), lambda){
 	repeat{
-		Compute the time frames;
-		Compute the operations and type probabilities;
-		Compute the self-forces, predcessor/successor forces and total forces;
-		Schedule the operation with least force and update its time-frame;
+		Compute the time frames; (DONE)
+		Compute the operations and type probabilities; (DONE)
+		Compute the self-forces (DONE?), predcessor/successor forces (TODO) and total forces (TODO);
+		Schedule the operation with least force and update its time-frame; (TODO)
 	} until (all operations scheduled);
 	return (t);
 */
@@ -208,7 +208,9 @@ void HLSM::scheduleGraph(int latency)
 {
 	asapSchedule(latency);
 	alapSchedule(latency);
-	calculateOperationProbablity(latency);
+	calculateOperationProbability(latency);
+	calculateTypeDistributionProbability(latency);
+	calculateNodeSelfForces();
 }
 
 void HLSM::asapSchedule(int latency)
@@ -305,12 +307,64 @@ void HLSM::alapSchedule(int latency)
 	}
 }
 
-void HLSM::calculateOperationProbablity(int latency)
+void HLSM::calculateOperationProbability(int latency)
 {
 	int i = 0;
 
 	for (i = 0; i < _nodes.size(); ++i) {
 		_nodes.at(i).assignOperationProbability(latency);
+	}
+}
+
+void HLSM::calculateTypeDistributionProbability(int latency)
+{
+	int i = 0;  //time cycle counter
+	int j = 0;  //node counter
+
+	//loop for time cycles
+	for (i = 0; i < latency; ++i) {
+		//inalize distributions to zero
+		_addSubDistribution.push_back(0.0);
+		_multDistribution.push_back(0.0);
+		_modDivDistribution.push_back(0.0);
+		_logicDistribution.push_back(0.0);
+		//loop for the nodes
+		for (j = 0; j < _nodes.size(); ++j) {
+			if (_nodes.at(j).getOperation() == "*") {
+				_multDistribution[i] = _multDistribution[i] + _nodes.at(j).getOperationProbability().at(i);
+			}
+			else if (_nodes.at(j).getOperation() == "+" || _nodes.at(j).getOperation() == "-") {
+				_addSubDistribution[i] = _addSubDistribution[i] + _nodes.at(j).getOperationProbability().at(i);
+			}
+			else if (_nodes.at(j).getOperation() == "/" || _nodes.at(j).getOperation() == "%") {
+				_modDivDistribution[i] = _modDivDistribution[i] + _nodes.at(j).getOperationProbability().at(i);
+			}
+			else {
+				_logicDistribution[i] = _logicDistribution[i] + _nodes.at(j).getOperationProbability().at(i);
+			}
+		}
+	}
+	
+}
+
+//I think this is giving the right results, need to go through and calculate everything
+void HLSM::calculateNodeSelfForces()
+{
+	int i = 0;
+
+	for (i = 0; i < _nodes.size(); ++i) {
+		if (_nodes.at(i).getOperation() == "*") {
+			_nodes.at(i).calculateSelfForce(_multDistribution);
+		}
+		else if (_nodes.at(i).getOperation() == "+" || _nodes.at(i).getOperation() == "-") {
+			_nodes.at(i).calculateSelfForce(_addSubDistribution);
+		}
+		else if (_nodes.at(i).getOperation() == "/" || _nodes.at(i).getOperation() == "%") {
+			_nodes.at(i).calculateSelfForce(_modDivDistribution);
+		}
+		else {
+			_nodes.at(i).calculateSelfForce(_logicDistribution);
+		}
 	}
 }
 

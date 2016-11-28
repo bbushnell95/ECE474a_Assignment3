@@ -41,6 +41,10 @@ private:
 	std::vector<Output*> _outputs;
 	std::vector<Variable*> _variables;
 	std::vector<Node> _nodes;
+	std::vector<double> _multDistribution;
+	std::vector<double> _addSubDistribution;
+	std::vector<double> _logicDistribution;
+	std::vector<double> _modDivDistribution;
 	std::vector<std::vector<Node*>> _asapSchedule;
 	std::vector<std::vector<Node*>> _alapShcedule;
 	std::vector<std::vector<Node*>> _forceDirectedSchedule;
@@ -57,7 +61,9 @@ public:
 	void scheduleGraph(int latency);
 	void asapSchedule(int latency);
 	void alapSchedule(int latency);
-	void calculateOperationProbablity(int latency);
+	void calculateOperationProbability(int latency);
+	void calculateTypeDistributionProbability(int latency);
+	void calculateNodeSelfForces();
 	bool writeToFile(char* fileName);
 	//void determineCriticalPath();
 	//void visitComponent(DatapathComponent * compoenent, double currTime, double* cP);

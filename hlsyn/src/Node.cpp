@@ -16,6 +16,7 @@ Node::Node()
 	cycleAllowed = 0;
 	asapTime = 0;
 	alapTime = 0;
+	scheduled = false;
 }
 
 Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<DataType*> _outputs)
@@ -29,7 +30,7 @@ Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<D
 	cycleAllowed = 0;
 	asapTime = 0;
 	alapTime = 0;
-
+	scheduled = false;
 }
 
 std::string Node::getOperation()
@@ -74,22 +75,22 @@ void Node::setOutputs(std::vector<DataType*> _outputs)
 
 std::vector<Node*> Node::getPreviousNodes()
 {
-	return previousNodes;
+	return _previousNodes;
 }
 
 void Node::setPreviousNodes(std::vector<Node*> pN)
 {
-	previousNodes = pN;
+	_previousNodes = pN;
 }
 
 std::vector<Node*> Node::getNextNodes()
 {
-	return nextNodes;
+	return _nextNodes;
 }
 
 void Node::setNextNodes(std::vector<Node*> nN)
 {
-	nextNodes = nN;
+	_nextNodes = nN;
 }
 
 std::vector<double> Node::getOperationProbability()
@@ -152,6 +153,16 @@ void Node::setAlapTime(int alT)
 	alapTime = alT;
 }
 
+bool Node::getScheduled()
+{
+	return scheduled;
+}
+
+void Node::setScheduled(bool s)
+{
+	scheduled = s;
+}
+
 
 void Node::addInput(DataType* newInput)
 {
@@ -165,12 +176,12 @@ void Node::addOutput(DataType* newOutput)
 
 void Node::addPreviousNode(Node * previousNode)
 {
-	previousNodes.push_back(previousNode);
+	_previousNodes.push_back(previousNode);
 }
 
 void Node::addNextNode(Node * nextNode) 
 {
-	nextNodes.push_back(nextNode);
+	_nextNodes.push_back(nextNode);
 }
 
 void Node::assignOperationProbability(int latency)
@@ -189,6 +200,39 @@ void Node::assignOperationProbability(int latency)
 		}
 		else {
 			_operationProbability.push_back(0);
+		}
+	}
+}
+
+void Node::calculateSelfForce(std::vector<double> typeDistribution)
+{
+	int i = 0;
+	int j = 0;
+	double currTempAssigned = 0.0;
+	double tempSelfForce = 0.0;
+
+	//intialize each time cycle
+	for (i = 0; i < _operationProbability.size(); ++i) {
+		_selfForce.push_back(NO_FORCE_IN_TIME_CYCLE);
+	}
+
+	//now calculate
+	for (i = 0; i < _operationProbability.size(); ++i) {
+		//see if i is withing the time frame
+		if (i >= asapTime && i <= alapTime) {
+			//if the node was hyptohetically assigned to this time cycle
+			currTempAssigned = typeDistribution.at(i) * (1 - _operationProbability.at(i));
+			
+			for (j = asapTime; j <= alapTime; ++j) {
+				if (j != i) {
+					tempSelfForce = tempSelfForce + typeDistribution.at(j) * (0 - _operationProbability.at(j));
+				}
+				else {
+					tempSelfForce = tempSelfForce + currTempAssigned;
+				}
+			}
+			
+			_selfForce[i] = tempSelfForce;
 		}
 	}
 }
