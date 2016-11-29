@@ -36,6 +36,9 @@ private:
 	std::vector<Node*> _nextNodes;
 	std::vector<double> _operationProbability;
 	std::vector<double> _selfForce;
+	std::vector<double> _predecessorForce;
+	std::vector<double> _sucessorForce;
+	std::vector<double> _totalForce;
 	int delay;
 	int cycleAllowed;   //this accounts for the delay of certain nodes
 	int asapTime;
@@ -64,6 +67,8 @@ public:
 	void setNextNodes(std::vector<Node*> nN);
 	std::vector<double> getOperationProbability();
 	void setOperationProbability(std::vector<double> oP);
+	std::vector<double> getTotalForces();
+	void setTotalForces(std::vector<double> tF);
 	char getVisted();
 	void setVisted(char v);
 	int getDelay();
@@ -82,6 +87,9 @@ public:
 	void addNextNode(Node* nextNode);
 	void assignOperationProbability(int latency);
 	void calculateSelfForce(std::vector<double> typeDistribution);
+	void calculatePredcessorForce(std::vector<double> typeDistribution);
+	void calculateSuccessorForce(std::vector<double> typeDistribution);
+	void calculateTotalForce();
 	void assignDelay();
 
 };

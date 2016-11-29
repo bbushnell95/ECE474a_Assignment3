@@ -206,11 +206,35 @@ void HLSM::createUnscheduledGraph()
 
 void HLSM::scheduleGraph(int latency)
 {
-	asapSchedule(latency);
-	alapSchedule(latency);
-	calculateOperationProbability(latency);
-	calculateTypeDistributionProbability(latency);
-	calculateNodeSelfForces();
+	int scheduledNodes = 0; 
+	int i = 0;
+	int j = 0;
+	double mostNegativeForce = 9999.0;
+	int timeToBeScheduled = -1;
+	Node* nodeToBeScheduled = NULL;
+
+	while (scheduledNodes < _nodes.size()) {
+		asapSchedule(latency);
+		alapSchedule(latency);
+		calculateOperationProbability(latency);
+		calculateTypeDistributionProbability(latency);
+		calculateNodeSelfForces();
+		calculateNodePredcessorSuccessorForces();
+		calculateNodeTotalForces();
+
+		for (i = 0; i < _nodes.size(); ++i) {
+			for (j = 0; j < _nodes[i].getTotalForces().size(); ++j) {
+				if (_nodes[i].getTotalForces().at(j) < mostNegativeForce) {
+					mostNegativeForce = _nodes[i].getTotalForces().at(j);
+					timeToBeScheduled = j;
+					nodeToBeScheduled = &_nodes[i];
+				}
+			}
+		}
+		nodeToBeScheduled->setScheduled(true);
+		_forceDirectedSchedule[timeToBeScheduled].push_back(nodeToBeScheduled);
+		++scheduledNodes;
+	}
 }
 
 void HLSM::asapSchedule(int latency)
@@ -368,6 +392,18 @@ void HLSM::calculateNodeSelfForces()
 	}
 }
 
+void HLSM::calculateNodePredcessorSuccessorForces()
+{
+}
+
+void HLSM::calculateNodeTotalForces() 
+{
+	int i = 0;
+
+	for (i = 0; i < _nodes.size(); ++i) {
+		_nodes.at(i).calculateTotalForce();
+	}
+}
 
 
 bool HLSM::writeToFile(char* fileName)

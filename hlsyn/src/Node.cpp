@@ -103,6 +103,16 @@ void Node::setOperationProbability(std::vector<double> oP)
 	_operationProbability = oP;
 }
 
+std::vector<double> Node::getTotalForces()
+{
+	return _totalForce;
+}
+
+void Node::setTotalForces(std::vector<double> tF)
+{
+	_totalForce = tF;
+}
+
 char Node::getVisted()
 {
 	return visited;
@@ -237,6 +247,49 @@ void Node::calculateSelfForce(std::vector<double> typeDistribution)
 	}
 }
 
+void Node::calculatePredcessorForce(std::vector<double> typeDistribution)
+{
+	int i = 0; 
+
+	for (i = 0; i < _operationProbability.size(); ++i) {
+		_predecessorForce.push_back(0.0);
+	}
+
+	if (_previousNodes.size() > 0) {
+		for (i = asapTime; i <= alapTime; ++i) {
+		}
+	}
+}
+
+void Node::calculateSuccessorForce(std::vector<double> typeDistribution)
+{
+	int i = 0;
+
+	for (i = 0; i < _operationProbability.size(); ++i) {
+		_sucessorForce.push_back(0.0);
+	}
+
+	if (_nextNodes.size() > 0) {
+		for (i = asapTime; i <= alapTime; ++i) {
+
+		}
+	}
+}
+
+void Node::calculateTotalForce()
+{
+	int i = 0; 
+
+	for (i = 0; i < _operationProbability.size(); ++i) {
+		_totalForce.push_back(9999);
+	}
+
+	for (i = 0; i < _totalForce.size(); ++i) {
+		_totalForce[i] = _selfForce[i] + _predecessorForce[i] + _sucessorForce[i];
+	}
+
+}
+
 void Node::assignDelay()
 {
 	if (!operation.compare("*")) {
@@ -252,5 +305,3 @@ void Node::assignDelay()
 		delay = LOGIC_DELAY;
 	}
 }
-
-

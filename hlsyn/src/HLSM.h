@@ -64,6 +64,8 @@ public:
 	void calculateOperationProbability(int latency);
 	void calculateTypeDistributionProbability(int latency);
 	void calculateNodeSelfForces();
+	void calculateNodePredcessorSuccessorForces();
+	void calculateNodeTotalForces();
 	bool writeToFile(char* fileName);
 	//void determineCriticalPath();
 	//void visitComponent(DatapathComponent * compoenent, double currTime, double* cP);
