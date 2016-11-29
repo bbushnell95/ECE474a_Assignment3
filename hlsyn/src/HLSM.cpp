@@ -198,8 +198,8 @@ void HLSM::createUnscheduledGraph()
 	repeat{
 		Compute the time frames; (DONE)
 		Compute the operations and type probabilities; (DONE)
-		Compute the self-forces (DONE?), predcessor/successor forces (TODO) and total forces (TODO);
-		Schedule the operation with least force and update its time-frame; (TODO)
+		Compute the self-forces (DONE?), predcessor/successor forces (TODO) and total forces (DONE);
+		Schedule the operation with least force and update its time-frame; (DONE)
 	} until (all operations scheduled);
 	return (t);
 */
@@ -207,11 +207,6 @@ void HLSM::createUnscheduledGraph()
 void HLSM::scheduleGraph(int latency)
 {
 	int scheduledNodes = 0; 
-	int i = 0;
-	int j = 0;
-	double mostNegativeForce = 9999.0;
-	int timeToBeScheduled = -1;
-	Node* nodeToBeScheduled = NULL;
 
 	while (scheduledNodes < _nodes.size()) {
 		asapSchedule(latency);
@@ -221,18 +216,8 @@ void HLSM::scheduleGraph(int latency)
 		calculateNodeSelfForces();
 		calculateNodePredcessorSuccessorForces();
 		calculateNodeTotalForces();
+		selectNodeToSchedule();
 
-		for (i = 0; i < _nodes.size(); ++i) {
-			for (j = 0; j < _nodes[i].getTotalForces().size(); ++j) {
-				if (_nodes[i].getTotalForces().at(j) < mostNegativeForce) {
-					mostNegativeForce = _nodes[i].getTotalForces().at(j);
-					timeToBeScheduled = j;
-					nodeToBeScheduled = &_nodes[i];
-				}
-			}
-		}
-		nodeToBeScheduled->setScheduled(true);
-		_forceDirectedSchedule[timeToBeScheduled].push_back(nodeToBeScheduled);
 		++scheduledNodes;
 	}
 }
@@ -403,6 +388,29 @@ void HLSM::calculateNodeTotalForces()
 	for (i = 0; i < _nodes.size(); ++i) {
 		_nodes.at(i).calculateTotalForce();
 	}
+}
+
+void HLSM::selectNodeToSchedule()
+{
+	int i = 0;
+	int j = 0;
+	double mostNegativeForce = 9999.0;
+	int timeToBeScheduled = -1;
+	Node* nodeToBeScheduled = NULL;
+
+	for (i = 0; i < _nodes.size(); ++i) {
+		for (j = 0; j < _nodes[i].getTotalForces().size(); ++j) {
+			if (_nodes[i].getTotalForces().at(j) < mostNegativeForce) {
+				mostNegativeForce = _nodes[i].getTotalForces().at(j);
+				timeToBeScheduled = j;
+				nodeToBeScheduled = &_nodes[i];
+			}
+		}
+	}
+	nodeToBeScheduled->setScheduled(true);
+	_forceDirectedSchedule[timeToBeScheduled].push_back(nodeToBeScheduled);
+	nodeToBeScheduled->setAlapTime(timeToBeScheduled);
+	nodeToBeScheduled->setAsapTime(timeToBeScheduled);
 }
 
 
