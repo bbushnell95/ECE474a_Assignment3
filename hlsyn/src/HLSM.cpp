@@ -214,7 +214,7 @@ void HLSM::scheduleGraph(int latency)
 		calculateOperationProbability(latency);
 		calculateTypeDistributionProbability(latency);
 		calculateNodeSelfForces();
-		calculateNodePredcessorSuccessorForces();
+		calculateNodePredecessorSuccessorForces();
 		calculateNodeTotalForces();
 		selectNodeToSchedule();
 
@@ -377,8 +377,44 @@ void HLSM::calculateNodeSelfForces()
 	}
 }
 
-void HLSM::calculateNodePredcessorSuccessorForces()
+void HLSM::calculateNodePredecessorSuccessorForces()
 {
+	int i = 0;
+	/* FOR REFERENCE:
+	(FROM calculateNodeSelfForces) */
+	/*
+	for (i = 0; i < _nodes.size(); ++i) {
+		if (_nodes.at(i).getOperation() == "*") {
+			_nodes.at(i).calculateSelfForce(_multDistribution);
+		}
+		else if (_nodes.at(i).getOperation() == "+" || _nodes.at(i).getOperation() == "-") {
+			_nodes.at(i).calculateSelfForce(_addSubDistribution);
+		}
+		else if (_nodes.at(i).getOperation() == "/" || _nodes.at(i).getOperation() == "%") {
+			_nodes.at(i).calculateSelfForce(_modDivDistribution);
+		}
+		else {
+			_nodes.at(i).calculateSelfForce(_logicDistribution);
+		}
+	}
+	*/
+
+	for (i = 0; i < _nodes.size(); ++i) {
+		if (_nodes.at(i).getOperation() == "*") {
+			_nodes.at(i).calculateSelfForce(_multDistribution);
+		}
+		else if (_nodes.at(i).getOperation() == "+" || _nodes.at(i).getOperation() == "-") {
+			_nodes.at(i).calculateSelfForce(_addSubDistribution);
+		}
+		else if (_nodes.at(i).getOperation() == "/" || _nodes.at(i).getOperation() == "%") {
+			_nodes.at(i).calculateSelfForce(_modDivDistribution);
+		}
+		else {
+			_nodes.at(i).calculateSelfForce(_logicDistribution);
+		}
+	}
+
+
 }
 
 void HLSM::calculateNodeTotalForces() 

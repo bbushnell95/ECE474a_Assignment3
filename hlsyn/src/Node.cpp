@@ -247,7 +247,7 @@ void Node::calculateSelfForce(std::vector<double> typeDistribution)
 	}
 }
 
-void Node::calculatePredcessorForce(std::vector<double> typeDistribution)
+void Node::calculatePredecessorForce(std::vector<double> typeDistribution)
 {
 	int i = 0; 
 

@@ -64,7 +64,7 @@ public:
 	void calculateOperationProbability(int latency);
 	void calculateTypeDistributionProbability(int latency);
 	void calculateNodeSelfForces();
-	void calculateNodePredcessorSuccessorForces();
+	void calculateNodePredecessorSuccessorForces();
 	void calculateNodeTotalForces();
 	void selectNodeToSchedule();
 	bool writeToFile(char* fileName);
