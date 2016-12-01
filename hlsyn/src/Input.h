@@ -15,7 +15,6 @@ Description: input Class for hlsyn program
 #include<algorithm>
 #include "DataType.h"
 
-
 class Input: public DataType{
 
 //private:

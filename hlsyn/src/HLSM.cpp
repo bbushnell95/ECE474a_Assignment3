@@ -404,16 +404,26 @@ void HLSM::calculateNodePredecessorSuccessorForces()
 
 	// Calculate forces from other nodes.
 	for (i = 0; i < (int)_nodes.size(); ++i) {
+		/* Clear the last node's predecessor and successor. */
 		prevNodes.clear();
 		succNodes.clear();
+		/* Look at the node's predecessor and successor. */
 		prevNodes = _nodes.at(i).getPreviousNodes();
 		succNodes = _nodes.at(i).getNextNodes();
+
 		/* Calculate predecessor forces. */
 		if (prevNodes.size() != 0) {
 			for (j = 0; j < (int)prevNodes.size(); j++) {
+				/* Brett... Different ways to handle this from what I can see...
+				Send each previous node individually
+				send all previous nodes together
+
+				*/
+				// _nodes.at(i).calculatePredecessorForce(prevNodes(j));
 				// TODO!
 			}
 		}
+
 		/* Calculate successor forces. */
 		if (succNodes.size() != 0) {
 			for (j = 0; j < (int)succNodes.size(); j++) {
