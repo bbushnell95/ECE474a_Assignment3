@@ -2,7 +2,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
+<<<<<<< HEAD
 //Date Created: Thu Dec  1 11:51:24 2016
+=======
+//Date Created: Thu Dec  1 10:10:36 2016
+>>>>>>> 98ab0e89dbc19e6fc1214e3fd30b976ca9cb4993
 //Assignment: 3
 //File: test.v
 //Description: An HLSM module which represents the C-like behavioral description 
@@ -34,6 +38,7 @@ module HLSM(Clk, Rst, Start, Done a, b, c, z, x);
 			s2: begin
 				NextState <= TODO
 			end
+<<<<<<< HEAD
 			s3: begin
 				NextState <= TODO
 			end
@@ -44,6 +49,18 @@ module HLSM(Clk, Rst, Start, Done a, b, c, z, x);
 				NextState <= TODO
 			end
 			s6: begin
+=======
+			s9: begin
+				NextState <= TODO
+			end
+			s10: begin
+				NextState <= TODO
+			end
+			s11: begin
+				NextState <= TODO
+			end
+			s12: begin
+>>>>>>> 98ab0e89dbc19e6fc1214e3fd30b976ca9cb4993
 				NextState <= TODO
 			end
 			Final: begin

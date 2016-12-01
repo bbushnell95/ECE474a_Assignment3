@@ -213,15 +213,17 @@ void HLSM::scheduleGraph(int latency)
 		_forceDirectedSchedule.push_back(vector<Node*>());
 	}
 
+	asapSchedule(latency);
+	alapSchedule(latency);
+
 	while (scheduledNodes < (int)_nodes.size()) {
-		asapSchedule(latency);
-		alapSchedule(latency);
 		calculateOperationProbability(latency);
 		calculateTypeDistributionProbability(latency);
 		calculateNodeSelfForces();
 		calculateNodePredecessorSuccessorForces();
 		calculateNodeTotalForces();
 		selectNodeToSchedule();
+		clearAlgothrimVectors();
 
 		++scheduledNodes;
 	}
@@ -293,27 +295,52 @@ void HLSM::alapSchedule(int latency)
 		for (j = 0; j < (int)_nodes.size(); ++j) {
 			if (i == latency - 1) {
 				if (_nodes.at(j).getNextNodes().size() == 0) {
-					_alapShcedule[i].push_back(&(_nodes.at(j)));
-					_nodes.at(j).setAlapTime(i);
+					if (_nodes.at(j).getDelay() > 1) {
+						_alapShcedule[i - _nodes.at(j).getDelay()].push_back(&(_nodes.at(j)));
+						_nodes.at(j).setAlapTime(i - _nodes.at(j).getDelay());
 
-					for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
-						if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
-							_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j).getDelay() - 1 < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+							}
+						}
+					}
+					else {
+						_alapShcedule[i].push_back(&(_nodes.at(j)));
+						_nodes.at(j).setAlapTime(i);
+
+						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+							}
 						}
 					}
 				}
 			}
 			else {
 				if (_nodes.at(j).getCycleAllowed() == i) {
-					_alapShcedule[i].push_back(&(_nodes.at(j)));
-					_nodes.at(j).setAlapTime(i);
+					if (_nodes.at(j).getDelay() > 1) {
+						_alapShcedule[i - _nodes.at(j).getDelay()].push_back(&(_nodes.at(j)));
+						_nodes.at(j).setAlapTime(i - _nodes.at(j).getDelay());
 
-					//update nodes allowed cycle time
-					for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
-						if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
-							_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j).getDelay() - 1 < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+							}
 						}
 					}
+					else {
+						_alapShcedule[i].push_back(&(_nodes.at(j)));
+						_nodes.at(j).setAlapTime(i);
+
+						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+							}
+						}
+					//update nodes allowed cycle time
+					}
+
 				}
 			}
 		}
@@ -465,7 +492,7 @@ void HLSM::selectNodeToSchedule()
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
 		for (j = 0; j < (int)_nodes[i].getTotalForces().size(); ++j) {
-			if (_nodes[i].getTotalForces().at(j) < mostNegativeForce) {
+			if (_nodes[i].getTotalForces().at(j) < mostNegativeForce && !_nodes[i].getScheduled()) {
 				mostNegativeForce = _nodes[i].getTotalForces().at(j);
 				timeToBeScheduled = j;
 				nodeToBeScheduled = &_nodes[i];
@@ -1943,4 +1970,14 @@ bool HLSM::checkIfComment(std::string checkString)
 	}
 
 	return result;
+}
+
+void HLSM::clearAlgothrimVectors()
+{
+	_multDistribution.clear();
+	_addSubDistribution.clear();
+	_modDivDistribution.clear();
+	_logicDistribution.clear();
+	//_asapSchedule.clear();
+	//_alapShcedule.clear();
 }
