@@ -1,9 +1,9 @@
 /*
 Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
 Date Create: 10/17/2016
-Assignment: 2
-File: Input.h
-Description: input Class for dpgen program
+Assignment: 3
+File: Input.cpp
+Description: input Class for hlsyn program
 */
 
 #include "Input.h"

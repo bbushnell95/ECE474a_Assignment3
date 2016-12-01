@@ -2,7 +2,7 @@
 Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
 Date Create: 10/3/2016
 Assignment: 3
-File: Circuit.cpp
+File: HLSM.cpp
 Description: HLSM class definitions for hlysn program
 */
 
@@ -208,7 +208,7 @@ void HLSM::scheduleGraph(int latency)
 {
 	int scheduledNodes = 0; 
 
-	while (scheduledNodes < _nodes.size()) {
+	while (scheduledNodes < (int)_nodes.size()) {
 		asapSchedule(latency);
 		alapSchedule(latency);
 		calculateOperationProbability(latency);
@@ -228,7 +228,6 @@ void HLSM::asapSchedule(int latency)
 	int j = 0;
 	int k = 0;
 
-
 	//create empty vectors in vector of vectors
 	for (i = 0; i < latency; ++i) {
 		_asapSchedule.push_back(vector<Node*>());
@@ -236,7 +235,7 @@ void HLSM::asapSchedule(int latency)
 	//go through each time cycle
 	for (i = 0; i < latency; ++i) {
 		//go through each unscheduled node
-		for (j = 0; j < _nodes.size(); ++j) {
+		for (j = 0; j < (int)_nodes.size(); ++j) {
 			if (i == 0) {
 				//if there are no previous nodes, current node goes into time 1 for asap
 				if (_nodes.at(j).getPreviousNodes().size() == 0) {
@@ -244,7 +243,7 @@ void HLSM::asapSchedule(int latency)
 					_nodes.at(j).setAsapTime(i);
 					
 					//Need to account for the delay if there is one
-					for (k = 0; k < _nodes.at(j).getNextNodes().size(); ++k) {
+					for (k = 0; k < (int)_nodes.at(j).getNextNodes().size(); ++k) {
 						if (i + _nodes.at(j).getDelay() > _nodes.at(j).getNextNodes().at(k)->getCycleAllowed()) {
 							_nodes.at(j).getNextNodes().at(k)->setCycleAllowed(i + _nodes.at(j).getDelay());
 						}
@@ -258,7 +257,7 @@ void HLSM::asapSchedule(int latency)
 					_nodes.at(j).setAsapTime(i);
 					
 					//update nodes allowed cycle time
-					for (k = 0; k < _nodes.at(j).getNextNodes().size(); ++k) {
+					for (k = 0; k < (int)_nodes.at(j).getNextNodes().size(); ++k) {
 						if (i + _nodes.at(j).getDelay() > _nodes.at(j).getNextNodes().at(k)->getCycleAllowed()) {
 							_nodes.at(j).getNextNodes().at(k)->setCycleAllowed(i + _nodes.at(j).getDelay());
 						}
@@ -276,7 +275,7 @@ void HLSM::alapSchedule(int latency)
 	int j = 0;
 	int k = 0;
 
-	for (i = 0; i < _nodes.size(); ++i) {
+	for (i = 0; i < (int)_nodes.size(); ++i) {
 		_nodes.at(i).setCycleAllowed(latency - 1);
 	}
 
@@ -286,13 +285,13 @@ void HLSM::alapSchedule(int latency)
 	}
 
 	for (i = latency - 1; i >= 0; --i) {
-		for (j = 0; j < _nodes.size(); ++j) {
+		for (j = 0; j < (int)_nodes.size(); ++j) {
 			if (i == latency - 1) {
 				if (_nodes.at(j).getNextNodes().size() == 0) {
 					_alapShcedule[i].push_back(&(_nodes.at(j)));
 					_nodes.at(j).setAlapTime(i);
 
-					for (k = 0; k < _nodes.at(j).getPreviousNodes().size(); ++k) {
+					for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
 						if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
 							_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
 						}
@@ -305,7 +304,7 @@ void HLSM::alapSchedule(int latency)
 					_nodes.at(j).setAlapTime(i);
 
 					//update nodes allowed cycle time
-					for (k = 0; k < _nodes.at(j).getPreviousNodes().size(); ++k) {
+					for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
 						if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
 							_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
 						}
@@ -320,7 +319,7 @@ void HLSM::calculateOperationProbability(int latency)
 {
 	int i = 0;
 
-	for (i = 0; i < _nodes.size(); ++i) {
+	for (i = 0; i < (int)_nodes.size(); ++i) {
 		_nodes.at(i).assignOperationProbability(latency);
 	}
 }
@@ -338,7 +337,7 @@ void HLSM::calculateTypeDistributionProbability(int latency)
 		_modDivDistribution.push_back(0.0);
 		_logicDistribution.push_back(0.0);
 		//loop for the nodes
-		for (j = 0; j < _nodes.size(); ++j) {
+		for (j = 0; j < (int)_nodes.size(); ++j) {
 			if (_nodes.at(j).getOperation() == "*") {
 				_multDistribution[i] = _multDistribution[i] + _nodes.at(j).getOperationProbability().at(i);
 			}
@@ -361,7 +360,7 @@ void HLSM::calculateNodeSelfForces()
 {
 	int i = 0;
 
-	for (i = 0; i < _nodes.size(); ++i) {
+	for (i = 0; i < (int)_nodes.size(); ++i) {
 		if (_nodes.at(i).getOperation() == "*") {
 			_nodes.at(i).calculateSelfForce(_multDistribution);
 		}
@@ -380,6 +379,10 @@ void HLSM::calculateNodeSelfForces()
 void HLSM::calculateNodePredecessorSuccessorForces()
 {
 	int i = 0;
+	int j = 0;
+	std::vector<Node*> prevNodes;
+	std::vector<Node*> succNodes;
+
 	/* FOR REFERENCE:
 	(FROM calculateNodeSelfForces) */
 	/*
@@ -399,18 +402,23 @@ void HLSM::calculateNodePredecessorSuccessorForces()
 	}
 	*/
 
-	for (i = 0; i < _nodes.size(); ++i) {
-		if (_nodes.at(i).getOperation() == "*") {
-			_nodes.at(i).calculateSelfForce(_multDistribution);
+	// Calculate forces from other nodes.
+	for (i = 0; i < (int)_nodes.size(); ++i) {
+		prevNodes.clear();
+		succNodes.clear();
+		prevNodes = _nodes.at(i).getPreviousNodes();
+		succNodes = _nodes.at(i).getNextNodes();
+		/* Calculate predecessor forces. */
+		if (prevNodes.size() != 0) {
+			for (j = 0; j < (int)prevNodes.size(); j++) {
+				// TODO!
+			}
 		}
-		else if (_nodes.at(i).getOperation() == "+" || _nodes.at(i).getOperation() == "-") {
-			_nodes.at(i).calculateSelfForce(_addSubDistribution);
-		}
-		else if (_nodes.at(i).getOperation() == "/" || _nodes.at(i).getOperation() == "%") {
-			_nodes.at(i).calculateSelfForce(_modDivDistribution);
-		}
-		else {
-			_nodes.at(i).calculateSelfForce(_logicDistribution);
+		/* Calculate successor forces. */
+		if (succNodes.size() != 0) {
+			for (j = 0; j < (int)succNodes.size(); j++) {
+				// TODO!
+			}
 		}
 	}
 
@@ -421,7 +429,7 @@ void HLSM::calculateNodeTotalForces()
 {
 	int i = 0;
 
-	for (i = 0; i < _nodes.size(); ++i) {
+	for (i = 0; i < (int)_nodes.size(); ++i) {
 		_nodes.at(i).calculateTotalForce();
 	}
 }
@@ -434,8 +442,8 @@ void HLSM::selectNodeToSchedule()
 	int timeToBeScheduled = -1;
 	Node* nodeToBeScheduled = NULL;
 
-	for (i = 0; i < _nodes.size(); ++i) {
-		for (j = 0; j < _nodes[i].getTotalForces().size(); ++j) {
+	for (i = 0; i < (int)_nodes.size(); ++i) {
+		for (j = 0; j < (int)_nodes[i].getTotalForces().size(); ++j) {
 			if (_nodes[i].getTotalForces().at(j) < mostNegativeForce) {
 				mostNegativeForce = _nodes[i].getTotalForces().at(j);
 				timeToBeScheduled = j;
@@ -458,8 +466,6 @@ bool HLSM::writeToFile(char* fileName)
 	string tempFileName = "";
 	string moduleName = "";
 	int i = 0;
-	int j = 0;
-	int k = 0;
 
 	/* Staging file name. */
 	tempFileName = fileName;
@@ -827,7 +833,7 @@ bool HLSM::determineOperation(std::string line, DataType* output)
 	int wireIndex = -1;
 	int outputIndex = -1;
 	bool result = true;
-	bool isDecInc = false;
+	// bool isDecInc = false;
 	std::string checkString = "";
 	std::string componentType = "";
 	std::string tempVariableName = "";
@@ -870,6 +876,7 @@ bool HLSM::determineOperation(std::string line, DataType* output)
 				isDecInc = true;
 			}
 		}*/
+
 		else {
 			if (!checkValidSymbol(checkString, &componentType)) {
 				if (checkVariable(checkString, &outputIndex, &inputIndex, &wireIndex)) {

@@ -12,7 +12,7 @@ Description: Main function for hlysn program
 using namespace std;
 
 /* Command-line Argument as follows:
-dpgen netlistFile verilogFile
+hlysn cFile latency verilogFile
 */
 int main(int argc, char *argv[])
 {
@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-
 	/* Read in the netlist file */
 	if (!newHLSM.readFile(argv[1])) {
 		cout << endl;
@@ -36,8 +35,8 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	/* Create the scheduled graph. */
 	newHLSM.scheduleGraph(atoi(argv[2]));
-	/* TODO: THE REAL WORK WILL HAPPEN HERE. */
 
 	/* Write to the verilog file */
 	if (!newHLSM.writeToFile(argv[3])) {

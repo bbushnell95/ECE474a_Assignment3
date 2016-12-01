@@ -1,9 +1,9 @@
 /*
 Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
 Date Create: 10/17/2016
-Assignment: 2
+Assignment: 3
 File: Output.h
-Description: output Class for dpgen program
+Description: Output Class for hlsyn program
 */
 
 #ifndef OUTPUT_H

@@ -5,6 +5,7 @@ Assignment: 3
 File: Node.h
 Description: Node Class for hlsyn program
 */
+
 #ifndef NODE_H
 #define NODE_H
 

@@ -222,12 +222,12 @@ void Node::calculateSelfForce(std::vector<double> typeDistribution)
 	double tempSelfForce = 0.0;
 
 	//intialize each time cycle
-	for (i = 0; i < _operationProbability.size(); ++i) {
+	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		_selfForce.push_back(NO_FORCE_IN_TIME_CYCLE);
 	}
 
 	//now calculate
-	for (i = 0; i < _operationProbability.size(); ++i) {
+	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		//see if i is withing the time frame
 		if (i >= asapTime && i <= alapTime) {
 			//if the node was hyptohetically assigned to this time cycle
@@ -251,12 +251,13 @@ void Node::calculatePredecessorForce(std::vector<double> typeDistribution)
 {
 	int i = 0; 
 
-	for (i = 0; i < _operationProbability.size(); ++i) {
+	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		_predecessorForce.push_back(0.0);
 	}
 
 	if (_previousNodes.size() > 0) {
 		for (i = asapTime; i <= alapTime; ++i) {
+			// TODO!
 		}
 	}
 }
@@ -265,13 +266,13 @@ void Node::calculateSuccessorForce(std::vector<double> typeDistribution)
 {
 	int i = 0;
 
-	for (i = 0; i < _operationProbability.size(); ++i) {
+	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		_sucessorForce.push_back(0.0);
 	}
 
 	if (_nextNodes.size() > 0) {
 		for (i = asapTime; i <= alapTime; ++i) {
-
+			// TODO!
 		}
 	}
 }
@@ -280,11 +281,11 @@ void Node::calculateTotalForce()
 {
 	int i = 0; 
 
-	for (i = 0; i < _operationProbability.size(); ++i) {
+	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		_totalForce.push_back(9999);
 	}
 
-	for (i = 0; i < _totalForce.size(); ++i) {
+	for (i = 0; i < (int)_totalForce.size(); ++i) {
 		_totalForce[i] = _selfForce[i] + _predecessorForce[i] + _sucessorForce[i];
 	}
 

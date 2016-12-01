@@ -1,9 +1,9 @@
 /*
 Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
 Date Create: 10/17/2016
-Assignment: 2
-File: Output.cpp
-Description: output Class for dpgen program
+Assignment: 3
+File: Variable.cpp
+Description: Variable Class for hlsyn program
 */
 
 #include "Variable.h"

@@ -1,9 +1,9 @@
 /*
 Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
 Date Create: 10/17/2016
-Assignment: 2
+Assignment: 3
 File: DataType.h
-Description: Data Type class for dpgen program
+Description: DataType class for hlsyn program
 */
 
 #ifndef DATATYPE_H
