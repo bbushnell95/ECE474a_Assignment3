@@ -404,10 +404,10 @@ void HLSM::calculateNodePredecessorSuccessorForces()
 
 	// Calculate forces from other nodes.
 	for (i = 0; i < (int)_nodes.size(); ++i) {
-		/* Clear the last node's predecessor and successor. */
+		/* Clear the last node's predecessor and successor. 
 		prevNodes.clear();
 		succNodes.clear();
-		/* Look at the node's predecessor and successor. */
+		/* Look at the node's predecessor and successor. 
 		prevNodes = _nodes.at(i).getPreviousNodes();
 		succNodes = _nodes.at(i).getNextNodes();
 

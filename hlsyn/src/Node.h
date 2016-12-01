@@ -88,8 +88,8 @@ public:
 	void addNextNode(Node* nextNode);
 	void assignOperationProbability(int latency);
 	void calculateSelfForce(std::vector<double> typeDistribution);
-	void calculatePredecessorForce(std::vector<double> typeDistribution);
-	void calculateSuccessorForce(std::vector<double> typeDistribution);
+	void calculatePredecessorForce(std::vector<double> multDistribution, std::vector<double> addSubDistribution, std::vector<double> modDivDistribution, std::vector<double> logicDistribution);
+	void calculateSuccessorForce(std::vector<double> multDistribution, std::vector<double> addSubDistribution, std::vector<double> modDivDistribution, std::vector<double> logicDistribution);
 	void calculateTotalForce();
 	void assignDelay();
 
