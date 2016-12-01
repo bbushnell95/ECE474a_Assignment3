@@ -350,8 +350,10 @@ void Node::calculateSuccessorForce(std::vector<double> multDistribution, std::ve
 								}
 								/* Calculate the successor force at the time specified. */
 								currTempAssigned += currNextNodeTypeDist.at(k) * (1 - _nextNodes.at(j)->getOperationProbability().at(k));
-								for (m = k + 1; m < (int)_nextNodes.at(j)->getAlapTime(); ++m) {
-									currTempAssigned = currTempAssigned + currNextNodeTypeDist.at(m) * (0 - _nextNodes.at(j)->getOperationProbability().at(m));
+								for (m = (int)_nextNodes.at(j)->getAsapTime(); m <= (int)_nextNodes.at(j)->getAlapTime(); ++m) {
+									if (m > i && m != k) {
+										currTempAssigned = currTempAssigned + currNextNodeTypeDist.at(m) * (0 - _nextNodes.at(j)->getOperationProbability().at(m));
+									}
 								}
 							}
 						}
