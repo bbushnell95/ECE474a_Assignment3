@@ -252,15 +252,59 @@ void Node::calculateSelfForce(std::vector<double> typeDistribution)
 
 void Node::calculatePredecessorForce(std::vector<double> multDistribution, std::vector<double> addSubDistribution, std::vector<double> modDivDistribution, std::vector<double> logicDistribution)
 {
-	int i = 0; 
+	int i = 0; // Time (node)
+	int j = 0; // Node (next node)
+	int k = 0; // Time
+	int m = 0; // Time
+	double currTempAssigned = 0.0;
+	std::vector<double> currPrevNodeTypeDist;
 
+	/* Initialize vector to zero. */
 	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		_predecessorForce.push_back(0.0);
 	}
 
+	/* Is there any previous nodes? */
 	if (_previousNodes.size() > 0) {
+		/* Cycle through allowable time cycles. */
 		for (i = asapTime; i <= alapTime; ++i) {
-			// TODO!
+			for (j = 0; j < (int)_previousNodes.size(); ++j) {
+				currTempAssigned = 0.0;
+				/* Does ALAP (prev) hit i (current)? No...? */
+				if (i > _previousNodes.at(j)->getAlapTime()) {
+					currTempAssigned += 0;
+				}
+				/* Yes...? */
+				else {
+					for (k = 0; k < (int)_operationProbability.size(); ++k) {
+						if (k >= _previousNodes.at(j)->getAsapTime() && k <= _previousNodes.at(j)->getAlapTime()) {
+							if (k < i) {
+								/* Determine the resource type of the next node. */
+								if (_previousNodes.at(j)->getOperation() == "*") {
+									currPrevNodeTypeDist = multDistribution;
+								}
+								else if (_previousNodes.at(j)->getOperation() == "+" || _previousNodes.at(j)->getOperation() == "-") {
+									currPrevNodeTypeDist = addSubDistribution;
+								}
+								else if (_previousNodes.at(j)->getOperation() == "/" || _previousNodes.at(j)->getOperation() == "%") {
+									currPrevNodeTypeDist = modDivDistribution;
+								}
+								else {
+									currPrevNodeTypeDist = logicDistribution;
+								}
+								/* Calculate the successor force at the time specified. */
+								currTempAssigned += currPrevNodeTypeDist.at(k) * (1 - _previousNodes.at(j)->getOperationProbability().at(k));
+								for (m = k; m <= (int)_previousNodes.at(j)->getAlapTime(); ++m) {
+									if (m != k && m < i) {
+										currTempAssigned = currTempAssigned + currPrevNodeTypeDist.at(m) * (0 - _nextNodes.at(j)->getOperationProbability().at(m));
+									}
+								}
+							}
+						}
+					}
+				}
+				_predecessorForce[i] += currTempAssigned;
+			}
 		}
 	}
 }
