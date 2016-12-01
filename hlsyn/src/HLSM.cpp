@@ -295,27 +295,52 @@ void HLSM::alapSchedule(int latency)
 		for (j = 0; j < (int)_nodes.size(); ++j) {
 			if (i == latency - 1) {
 				if (_nodes.at(j).getNextNodes().size() == 0) {
-					_alapShcedule[i].push_back(&(_nodes.at(j)));
-					_nodes.at(j).setAlapTime(i);
+					if (_nodes.at(j).getDelay() > 1) {
+						_alapShcedule[i - _nodes.at(j).getDelay()].push_back(&(_nodes.at(j)));
+						_nodes.at(j).setAlapTime(i - _nodes.at(j).getDelay());
 
-					for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
-						if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
-							_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j).getDelay() - 1 < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+							}
+						}
+					}
+					else {
+						_alapShcedule[i].push_back(&(_nodes.at(j)));
+						_nodes.at(j).setAlapTime(i);
+
+						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+							}
 						}
 					}
 				}
 			}
 			else {
 				if (_nodes.at(j).getCycleAllowed() == i) {
-					_alapShcedule[i].push_back(&(_nodes.at(j)));
-					_nodes.at(j).setAlapTime(i);
+					if (_nodes.at(j).getDelay() > 1) {
+						_alapShcedule[i - _nodes.at(j).getDelay()].push_back(&(_nodes.at(j)));
+						_nodes.at(j).setAlapTime(i - _nodes.at(j).getDelay());
 
-					//update nodes allowed cycle time
-					for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
-						if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
-							_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j).getDelay() - 1 < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+							}
 						}
 					}
+					else {
+						_alapShcedule[i].push_back(&(_nodes.at(j)));
+						_nodes.at(j).setAlapTime(i);
+
+						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+							}
+						}
+					//update nodes allowed cycle time
+					}
+
 				}
 			}
 		}
