@@ -383,6 +383,11 @@ void HLSM::calculateNodePredecessorSuccessorForces()
 	std::vector<Node*> prevNodes;
 	std::vector<Node*> succNodes;
 
+
+	for (i = 0; i < (int)_nodes.size(); ++i) {
+		_nodes.at(i).calculateSuccessorForce(_multDistribution, _addSubDistribution, _modDivDistribution, _logicDistribution);
+	}
+
 	/* FOR REFERENCE:
 	(FROM calculateNodeSelfForces) */
 	/*
