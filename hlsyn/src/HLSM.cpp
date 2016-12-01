@@ -593,7 +593,7 @@ bool HLSM::writeToFile(char* fileName)
 	/* The actual states */
 	for (i = 0; i < (int)_forceDirectedSchedule.size(); i++) {
 			outputFile << "\t\t\t" << "s";
-			outputFile << (i + 2) + j;
+			outputFile << (i + 2);
 			outputFile << ": begin" << endl;
 			for (j = 0; j < (int)_nodes.size(); j++) {
 				if (_nodes.at(j).getFDSTime() == i) {
