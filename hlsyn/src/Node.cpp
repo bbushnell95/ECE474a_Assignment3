@@ -163,6 +163,16 @@ void Node::setAlapTime(int alT)
 	alapTime = alT;
 }
 
+int Node::getFDSTime()
+{
+	return fdsTime;
+}
+
+void Node::setFDSTime(int fT)
+{
+	fdsTime = fT;
+}
+
 bool Node::getScheduled()
 {
 	return scheduled;
@@ -199,6 +209,10 @@ void Node::assignOperationProbability(int latency)
 	int i = 0;
 	//double tempProb = 0.0;
 
+	if (_operationProbability.size() > 0) {
+		_operationProbability.clear();
+	}
+
 	for (i = 0; i < latency; ++i) {
 		if (i >= asapTime && i <= alapTime) {
 			if ((alapTime - asapTime) != 0) {
@@ -220,6 +234,10 @@ void Node::calculateSelfForce(std::vector<double> typeDistribution)
 	int j = 0;
 	double currTempAssigned = 0.0;
 	double tempSelfForce = 0.0;
+
+	if (_selfForce.size() > 0) {
+		_selfForce.clear();
+	}
 
 	//intialize each time cycle
 	for (i = 0; i < (int)_operationProbability.size(); ++i) {
@@ -258,6 +276,11 @@ void Node::calculatePredecessorForce(std::vector<double> multDistribution, std::
 	int m = 0; // Time
 	double currTempAssigned = 0.0;
 	std::vector<double> currPrevNodeTypeDist;
+
+	/*clear the vector*/
+	if (_predecessorForce.size() > 0) {
+		_predecessorForce.clear();
+	}
 
 	/* Initialize vector to zero. */
 	for (i = 0; i < (int)_operationProbability.size(); ++i) {
@@ -318,6 +341,10 @@ void Node::calculateSuccessorForce(std::vector<double> multDistribution, std::ve
 	double currTempAssigned = 0.0;
 	std::vector<double> currNextNodeTypeDist;
 
+	if (_sucessorForce.size() > 0) {
+		_sucessorForce.clear();
+	}
+
 	/* Initialize vector to zero. */
 	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		_sucessorForce.push_back(0.0);
@@ -371,6 +398,10 @@ void Node::calculateSuccessorForce(std::vector<double> multDistribution, std::ve
 void Node::calculateTotalForce()
 {
 	int i = 0; 
+
+	if (_totalForce.size() > 0) {
+		_totalForce.clear();
+	}
 
 	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		_totalForce.push_back(9999);

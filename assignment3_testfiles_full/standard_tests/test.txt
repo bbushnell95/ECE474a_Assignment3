@@ -2,7 +2,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
+<<<<<<< HEAD
 //Date Created: Thu Dec 01 09:35:52 2016
+=======
+//Date Created: Thu Dec  1 00:44:04 2016
+>>>>>>> f2cca81fab66652f570253d4a29605a5ad481cc8
 //Assignment: 3
 //File: test.v
 //Description: An HLSM module which represents the C-like behavioral description 
