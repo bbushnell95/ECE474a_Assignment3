@@ -45,9 +45,9 @@ private:
 	std::vector<double> _addSubDistribution;
 	std::vector<double> _logicDistribution;
 	std::vector<double> _modDivDistribution;
-	std::vector<std::vector<Node*>> _asapSchedule;
-	std::vector<std::vector<Node*>> _alapShcedule;
-	std::vector<std::vector<Node*>> _forceDirectedSchedule;
+	std::vector<std::vector< Node*> > _asapSchedule;
+	std::vector<std::vector< Node*> > _alapShcedule;
+	std::vector<std::vector< Node*> > _forceDirectedSchedule;
 	
 
 public:
