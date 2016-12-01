@@ -596,7 +596,7 @@ bool HLSM::writeToFile(char* fileName)
 			outputFile << (i + 2) + j;
 			outputFile << ": begin" << endl;
 			for (j = 0; j < (int)_nodes.size(); j++) {
-				if (/*_nodes.at(j).getFDSTime() == i*/ 1) {
+				if (_nodes.at(j).getFDSTime() == i) {
 					writeOperation(&outputFile, _nodes.at(j));
 				}
 			}
