@@ -465,7 +465,7 @@ void HLSM::selectNodeToSchedule()
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
 		for (j = 0; j < (int)_nodes[i].getTotalForces().size(); ++j) {
-			if (_nodes[i].getTotalForces().at(j) < mostNegativeForce) {
+			if (_nodes[i].getTotalForces().at(j) < mostNegativeForce && !_nodes[i].getScheduled()) {
 				mostNegativeForce = _nodes[i].getTotalForces().at(j);
 				timeToBeScheduled = j;
 				nodeToBeScheduled = &_nodes[i];
