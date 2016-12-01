@@ -283,9 +283,10 @@ void Node::calculateSuccessorForce(std::vector<double> multDistribution, std::ve
 		/* Cycle through allowable time cycles. */
 		for (i = asapTime; i <= alapTime; ++i) {
 			for (j = 0; j < (int)_nextNodes.size(); ++j) {
+				currTempAssigned = 0.0;
 				/* Does ALAP hit ASAP? No...? */
 				if (i < _nextNodes.at(j)->getAsapTime()) {
-					_sucessorForce[i] += 0;
+					currTempAssigned += 0;
 				}
 				/* Yes...? */
 				else {
@@ -306,7 +307,7 @@ void Node::calculateSuccessorForce(std::vector<double> multDistribution, std::ve
 									currNextNodeTypeDist = logicDistribution;
 								}
 								/* Calculate the successor force at the time specified. */
-								currTempAssigned = currNextNodeTypeDist.at(k) * (1 - _nextNodes.at(j)->getOperationProbability().at(k));
+								currTempAssigned += currNextNodeTypeDist.at(k) * (1 - _nextNodes.at(j)->getOperationProbability().at(k));
 								for (m = k + 1; m < (int)_nextNodes.at(j)->getAlapTime(); ++m) {
 									currTempAssigned = currTempAssigned + currNextNodeTypeDist.at(m) * (0 - _nextNodes.at(j)->getOperationProbability().at(m));
 								}
@@ -314,6 +315,7 @@ void Node::calculateSuccessorForce(std::vector<double> multDistribution, std::ve
 						}
 					}
 				}
+				_sucessorForce[i] += currTempAssigned;
 			}
 		}
 	}
