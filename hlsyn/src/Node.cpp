@@ -294,7 +294,7 @@ void Node::calculatePredecessorForce(std::vector<double> multDistribution, std::
 								}
 								/* Calculate the successor force at the time specified. */
 								currTempAssigned += currPrevNodeTypeDist.at(k) * (1 - _previousNodes.at(j)->getOperationProbability().at(k));
-								for (m = k; m <= (int)_previousNodes.at(j)->getAlapTime(); ++m) {
+								for (m = (int)_previousNodes.at(j)->getAsapTime(); m <= (int)_previousNodes.at(j)->getAlapTime(); ++m) {
 									if (m != k && m < i) {
 										currTempAssigned = currTempAssigned + currPrevNodeTypeDist.at(m) * (0 - _previousNodes.at(j)->getOperationProbability().at(m));
 									}

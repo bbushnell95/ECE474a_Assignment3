@@ -207,6 +207,11 @@ void HLSM::createUnscheduledGraph()
 void HLSM::scheduleGraph(int latency)
 {
 	int scheduledNodes = 0; 
+	int i = 0;
+
+	for (i = 0; i < latency; ++i) {
+		_forceDirectedSchedule.push_back(vector<Node*>());
+	}
 
 	while (scheduledNodes < (int)_nodes.size()) {
 		asapSchedule(latency);
