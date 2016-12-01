@@ -229,6 +229,7 @@ void Node::calculateSelfForce(std::vector<double> typeDistribution)
 	//now calculate
 	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		//see if i is withing the time frame
+		tempSelfForce = 0.0;
 		if (i >= asapTime && i <= alapTime) {
 			//if the node was hyptohetically assigned to this time cycle
 			currTempAssigned = typeDistribution.at(i) * (1 - _operationProbability.at(i));

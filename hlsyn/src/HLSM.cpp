@@ -386,6 +386,7 @@ void HLSM::calculateNodePredecessorSuccessorForces()
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
 		_nodes.at(i).calculateSuccessorForce(_multDistribution, _addSubDistribution, _modDivDistribution, _logicDistribution);
+		_nodes.at(i).calculatePredecessorForce(_multDistribution, _addSubDistribution, _modDivDistribution, _logicDistribution);
 	}
 
 	/* FOR REFERENCE:
