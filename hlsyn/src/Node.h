@@ -44,6 +44,7 @@ private:
 	int cycleAllowed;   //this accounts for the delay of certain nodes
 	int asapTime;
 	int alapTime;
+	int fdsTime;
 	char visited;
 	bool scheduled;
 
@@ -80,6 +81,8 @@ public:
 	void setAsapTime(int asT);
 	int getAlapTime();
 	void setAlapTime(int alT);
+	int getFDSTime();
+	void setFDSTime(int fT);
 	bool getScheduled();
 	void setScheduled(bool s);
 	void addInput(DataType* newInput);

@@ -222,8 +222,10 @@ void HLSM::scheduleGraph(int latency)
 		calculateNodePredecessorSuccessorForces();
 		calculateNodeTotalForces();
 		selectNodeToSchedule();
+		clearAlgothrimVectors();
 
 		++scheduledNodes;
+
 	}
 }
 
@@ -476,6 +478,7 @@ void HLSM::selectNodeToSchedule()
 	_forceDirectedSchedule[timeToBeScheduled].push_back(nodeToBeScheduled);
 	nodeToBeScheduled->setAlapTime(timeToBeScheduled);
 	nodeToBeScheduled->setAsapTime(timeToBeScheduled);
+	nodeToBeScheduled->setFDSTime(timeToBeScheduled);
 }
 
 
@@ -1909,4 +1912,14 @@ bool HLSM::checkIfComment(std::string checkString)
 	}
 
 	return result;
+}
+
+void HLSM::clearAlgothrimVectors()
+{
+	_multDistribution.clear();
+	_addSubDistribution.clear();
+	_modDivDistribution.clear();
+	_logicDistribution.clear();
+	_asapSchedule.clear();
+	_alapShcedule.clear();
 }
