@@ -10,13 +10,13 @@ Description: HLSM Class for hlsyn program
 #define HLSM_H
 
 #include <ctime>
-#include<iostream>
-#include<fstream>
-#include<sstream>
-#include<string>
-#include<vector>
-#include<cstring>
-#include<algorithm>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <cstring>
+#include <algorithm>
 
 #include "DataType.h"
 #include "Input.h"
@@ -68,6 +68,7 @@ public:
 	void calculateNodeTotalForces();
 	void selectNodeToSchedule();
 	bool writeToFile(char* fileName);
+	bool writeOperation(std::ofstream *outputFile, Node caseNode);
 	//void determineCriticalPath();
 	//void visitComponent(DatapathComponent * compoenent, double currTime, double* cP);
 	void createNewInputVariable(std::string checkString, int dataWidthIndex);

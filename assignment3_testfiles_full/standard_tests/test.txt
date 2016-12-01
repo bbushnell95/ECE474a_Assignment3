@@ -2,11 +2,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
-//Date Created: Thu Dec  1 09:58:08 2016
+//Date Created: Thu Dec 01 09:35:52 2016
 //Assignment: 3
 //File: test.v
 //Description: An HLSM module which represents the C-like behavioral description 
-//             into a shceduled high-level statement machine implemented in Verilog.
+//             into a scheduled high-level statement machine implemented in Verilog.
 //
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -21,23 +21,14 @@ module HLSM(Clk, Rst, Start, Done a, b, c, z, x);
 	wire [7:0] d, e, f, g;
 
 	reg[:0] State, NextState;
-	parameterWait = 0, s4 = 3,Final = 4;
-	always@(z, xState) begin
+	parameter Wait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, s7 = 6,Final = 7;
+
+	always@(a, b, c, Start ,State) begin
 		case(State)
 			Wait: begin
 				if (Start)
 					NextState <= s2;
 				else
-					NextState <= Init;
+					NextState <= Wait;
 			end
-			Final: begin
-				Done = 1;
-				NextState <= Wait;
-			end
-	always@(posedge Clk) begin
-		if (Rst)
-			State <= Init;		else
-			State <= NextState;
-	end
-
-endmodule
+			s2: begin
