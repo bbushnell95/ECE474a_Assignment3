@@ -251,15 +251,57 @@ void Node::calculateSelfForce(std::vector<double> typeDistribution)
 
 void Node::calculatePredecessorForce(std::vector<double> multDistribution, std::vector<double> addSubDistribution, std::vector<double> modDivDistribution, std::vector<double> logicDistribution)
 {
-	int i = 0; 
+	int i = 0; // Time (node)
+	int j = 0; // Node (next node)
+	int k = 0; // Time
+	int m = 0; // Time
+	double currTempAssigned = 0.0;
+	std::vector<double> currNextNodeTypeDist;
 
+	/* Initialize vector to zero. */
 	for (i = 0; i < (int)_operationProbability.size(); ++i) {
 		_predecessorForce.push_back(0.0);
 	}
 
+	/* Is there any previous nodes? */
 	if (_previousNodes.size() > 0) {
+		/* Cycle through allowable time cycles. */
 		for (i = asapTime; i <= alapTime; ++i) {
-			// TODO!
+			for (j = 0; j < (int)_nextNodes.size(); ++j) {
+				currTempAssigned = 0.0;
+				/* Does ALAP hit ASAP? No...? */
+				if (i < _nextNodes.at(j)->getAsapTime()) {
+					currTempAssigned += 0;
+				}
+				/* Yes...? */
+				else {
+					for (k = 0; k < (int)_operationProbability.size(); ++k) {
+						if (k >= _nextNodes.at(j)->getAsapTime() && k <= _nextNodes.at(j)->getAlapTime()) {
+							if (k > i) {
+								/* Determine the resource type of the next node. */
+								if (_nextNodes.at(j)->getOperation() == "*") {
+									currNextNodeTypeDist = multDistribution;
+								}
+								else if (_nextNodes.at(j)->getOperation() == "+" || _nextNodes.at(j)->getOperation() == "-") {
+									currNextNodeTypeDist = addSubDistribution;
+								}
+								else if (_nextNodes.at(j)->getOperation() == "/" || _nextNodes.at(j)->getOperation() == "%") {
+									currNextNodeTypeDist = modDivDistribution;
+								}
+								else {
+									currNextNodeTypeDist = logicDistribution;
+								}
+								/* Calculate the successor force at the time specified. */
+								currTempAssigned += currNextNodeTypeDist.at(k) * (1 - _nextNodes.at(j)->getOperationProbability().at(k));
+								for (m = k + 1; m < (int)_nextNodes.at(j)->getAlapTime(); ++m) {
+									currTempAssigned = currTempAssigned + currNextNodeTypeDist.at(m) * (0 - _nextNodes.at(j)->getOperationProbability().at(m));
+								}
+							}
+						}
+					}
+				}
+				_sucessorForce[i] += currTempAssigned;
+			}
 		}
 	}
 }
