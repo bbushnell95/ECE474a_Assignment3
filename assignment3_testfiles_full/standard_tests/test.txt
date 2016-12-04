@@ -2,7 +2,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
-//Date Created: Sat Dec  3 21:58:20 2016
+//Date Created: Sat Dec  3 23:53:50 2016
 //Assignment: 3
 //File: test.v
 //Description: An HLSM module which represents the C-like behavioral description 
@@ -21,7 +21,7 @@ module HLSM(Clk, Rst, Start, Done a, b, c, z, x);
 	wire [7:0] d, e, f, g;
 
 	reg[TODO:0] state;
-	parameter sWait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, s7 = 6, Final = 7;
+	parameter sWait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, s7 = 6, sFinal = 7;
 
 	always@(posedge Clk) begin
 		if(Rst == 1) begin
@@ -39,29 +39,29 @@ module HLSM(Clk, Rst, Start, Done a, b, c, z, x);
 					state <= sWait;
 			end
 			s2: begin
-				TODO
-				TODO
-				NextState <= TODO
+				d <= a + b;
+				f <= a * c;
+				state <= s3
 			end
 			s3: begin
-				NextState <= TODO
+				state <= s4
 			end
 			s4: begin
-				TODO
-				NextState <= TODO
+				e <= a + c;
+				state <= s5
 			end
 			s5: begin
-				TODO
-				TODO
-				NextState <= TODO
+				TODO: GREATER THAN;
+				x <= f - d;
+				state <= s6
 			end
 			s6: begin
-				TODO
-				NextState <= TODO
+				TODO: MULTIPLEXOR;
+				state <= s7
 			end
-			Final: begin
+			sFinal: begin
 				Done <= 1;
-				NextState <= Wait;
+				state <= sWait;
 			end
 		endcase
 	end

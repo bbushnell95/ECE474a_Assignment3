@@ -561,7 +561,7 @@ bool HLSM::writeToFile(char* fileName)
 	for (i = 0; i < (int)_nodes.size(); i++) {
 		outputFile << " s" << i + 2 << " = " << i + 1 << ",";
 	}
-	outputFile << " Final = " << i + 1 << ";" << endl << endl;
+	outputFile << " sFinal = " << i + 1 << ";" << endl << endl;
 
 	/* Create the case statements. */
 	outputFile << "\t" << "always@(";
@@ -586,11 +586,11 @@ bool HLSM::writeToFile(char* fileName)
 	}
 	outputFile << "\t" << "end" << endl;
 
-	/* HLSM Now! */
+	/* HLSM Now! Go! */
 	outputFile << "\t" << "else begin" << endl;
 	outputFile << "\t\t" << "case(state)" << endl;
 	
-	/* Wait State. */
+	/* sWait State. */
 	outputFile << "\t\t\t" << "sWait: begin" << endl;
 	outputFile << "\t\t\t\t" << "if (Start == 1)" << endl;
 	outputFile << "\t\t\t\t\t" << "state <= s2;" << endl;
@@ -605,30 +605,21 @@ bool HLSM::writeToFile(char* fileName)
 			outputFile << ": begin" << endl;
 			for (j = 0; j < (int)_nodes.size(); j++) {
 					if (_nodes.at(j).getFDSTime() == i) {
-					writeOperation(&outputFile, _nodes.at(j));
+					writeOperation(&outputFile, j);
 				}
 			}
-			outputFile << "\t\t\t\t" << "NextState <= ";
-			outputFile << "TODO" << endl;
+			outputFile << "\t\t\t\t" << "state <= ";
+			outputFile << "s" << i + 3 << endl; // May need to fix later on depending on implementation of if/for
 			outputFile << "\t\t\t" << "end" << endl;
 	}
 
 	/* Final State. */
-	outputFile << "\t\t\t" << "Final: begin" << endl;
+	outputFile << "\t\t\t" << "sFinal: begin" << endl;
 	outputFile << "\t\t\t\t" << "Done <= 1;" << endl;
-	outputFile << "\t\t\t\t" << "NextState <= Wait;" << endl;
+	outputFile << "\t\t\t\t" << "state <= sWait;" << endl;
 	outputFile << "\t\t\t" << "end" << endl;
 	outputFile << "\t\t" << "endcase" << endl;
 	outputFile << "\t" << "end" << endl << endl;
-
-	/* Create the dependence upon Clk and Rst.
-	outputFile << "\t" << "always@(posedge Clk) begin" << endl;
-	outputFile << "\t\t" << "if (Rst)" << endl;
-	outputFile << "\t\t\t" << "State <= Wait;" << endl;
-	outputFile << "\t\t" << "else" << endl;
-	outputFile << "\t\t\t" << "State <= NextState;" << endl;
-	outputFile << "\t" << "end" << endl;
-	*/
 
 	/* End Module. */
 	outputFile << endl << "endmodule" << endl;
@@ -640,9 +631,7 @@ bool HLSM::writeToFile(char* fileName)
 
 }
 
-bool HLSM::writeOperation(ofstream *outputFile, Node caseNode) {
-
-	std::string nodeOp;
+bool HLSM::writeOperation(ofstream *outputFile, int nodeIndex) {
 
 	/* Make sure it is still open. */
 	if (!(*outputFile).is_open()) {
@@ -650,10 +639,67 @@ bool HLSM::writeOperation(ofstream *outputFile, Node caseNode) {
 	}
 
 	/* Write the operation. */
-	nodeOp = caseNode.getOperation();
-	*outputFile << "\t\t\t\t" << "TODO";
-
-	*outputFile << endl;
+	// ADD		DONE	PRINTS
+	// SUB		DONE	PRINTS	
+	// MULT		DONE	PRINTS
+	// GREATER	?		?
+	// LESSER	?		?
+	// EQUAL	?		?
+	// MUX		?		?
+	// SHR		?		?
+	// SHL		?		?
+	// DIV		DONE	?
+	// MODULO	DONE	?
+	// INC		?		?
+	// DEC		?		?
+	// const std::string validSymbols[13] = { "=","+" ,"-", "*", ">", "<","==", "?", ":", ">>", "<<", "/", "%" };
+	// _nodes.at(nodeIndex).getOperation();
+	/* ADDITION */ /* SUBTRACTION */ /* MULTIPLICATION */
+	/* DIVISION */ /* MODULO */ /**/
+	if (_nodes.at(nodeIndex).getOperation() == "+" ||
+		_nodes.at(nodeIndex).getOperation() == "-" ||
+		_nodes.at(nodeIndex).getOperation() == "*" ||
+		_nodes.at(nodeIndex).getOperation() == "/") {
+		*outputFile << "\t\t\t\t";
+		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
+		*outputFile << " <= ";
+		*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
+		*outputFile << " " << _nodes.at(nodeIndex).getOperation() << " ";
+		*outputFile << _nodes.at(nodeIndex).getInputs().at(1)->getName();
+		*outputFile << ";" << endl;
+	}
+	/* GREATER THAN */
+	else if (_nodes.at(nodeIndex).getOperation() == ">") {
+		*outputFile << "\t\t\t\t";
+		*outputFile << "TODO: GREATER THAN";
+		*outputFile << ";" << endl;
+	}
+	/* LESS THAN */
+	else if (_nodes.at(nodeIndex).getOperation() == "<") {
+		*outputFile << "\t\t\t\t";
+		*outputFile << "TODO: LESS THAN";
+		*outputFile << ";" << endl;
+	}
+	/* EQUAL TO */
+	else if (_nodes.at(nodeIndex).getOperation() == "<") {
+		*outputFile << "\t\t\t\t";
+		*outputFile << "TODO: EQUAL TO";
+		*outputFile << ";" << endl;
+	}
+	/* MULTIPLEXOR */
+	else if (_nodes.at(nodeIndex).getOperation() == "?") {
+		*outputFile << "\t\t\t\t";
+		*outputFile << "TODO: MULTIPLEXOR";
+		*outputFile << ";" << endl;
+	}
+	/* This is a problem... Awkward. */
+	else {
+		*outputFile << "\t\t\t\t" << "TODO <= TODO TODO TODO;" << endl;
+		// REMEMBER TO CHANGE THIS TO FIX.
+		// return false;
+	}
+	
+	return true;
 
 }
 
