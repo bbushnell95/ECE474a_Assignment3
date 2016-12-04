@@ -471,28 +471,22 @@ bool HLSM::writeToFile(char* fileName)
 	tempFileName = fileName;
 	for (i = tempFileName.size() - 1; i > 0; i--) {
 		if (tempFileName.at(i) == '\\' || tempFileName.at(i) == '/') {
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
-			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
 			break;
 		}
 	}
-	for (i = i + 1; i < (int)tempFileName.size() - 1; i++) {
-		if (tempFileName.at(i) == '.') {
-			break;
+	if (i != 0) {
+		for (i = i + 1; i < (int)tempFileName.size() - 1; i++) {
+			if (tempFileName.at(i) == '.') {
+				break;
+			}
+			moduleName += tempFileName.at(i);
 		}
-		moduleName += tempFileName.at(i);
+	}
+	else {
+		/* If there was no directory provided... */
+		moduleName = tempFileName;
+		moduleName.pop_back();
+		moduleName.pop_back();
 	}
 
 	/* Open the output file. */
@@ -527,7 +521,7 @@ bool HLSM::writeToFile(char* fileName)
 
 	/* Start of Module. */
 	// outputFile << "module " << moduleName << "(clk, rst, ";
-	outputFile << "module " << "HLSM" << "(Clk, Rst, Start, Done ";
+	outputFile << "module " << "HLSM" << "(Clk, Rst, Start, Done, ";
 	for (i = 0; i < (int)_inputs.size(); i++) {
 		outputFile << (*_inputs.at(i)).getName();
 		outputFile << ", ";
@@ -566,15 +560,6 @@ bool HLSM::writeToFile(char* fileName)
 	/* Create the case statements. */
 	outputFile << "\t" << "always@(";
 	outputFile << "posedge Clk)";
-	/*
-	for (i = 0; i < (int)_inputs.size(); i++) {
-		outputFile << (*_inputs.at(i)).getName();
-		// if (i != (int)_outputs.size() - 1) {
-			outputFile << ", ";
-		// }
-	}
-	outputFile << "Start ,State) begin" << endl;
-	*/
 	outputFile << " begin" << endl;
 
 	/* Reset condition. */
@@ -584,23 +569,24 @@ bool HLSM::writeToFile(char* fileName)
 	for (i = 0; i < (int)_outputs.size(); i++) {
 		outputFile << "\t\t\t" << _outputs.at(i)->getName() << " <= 0;" << endl;
 	}
-	outputFile << "\t" << "end" << endl;
+	outputFile << "\t\t" << "end" << endl;
 
 	/* HLSM Now! Go! */
-	outputFile << "\t" << "else begin" << endl;
-	outputFile << "\t\t" << "case(state)" << endl;
+	outputFile << "\t\t" << "else begin" << endl;
+	outputFile << "\t\t\t" << "case(state)" << endl;
 	
 	/* sWait State. */
-	outputFile << "\t\t\t" << "sWait: begin" << endl;
-	outputFile << "\t\t\t\t" << "if (Start == 1)" << endl;
-	outputFile << "\t\t\t\t\t" << "state <= s2;" << endl;
-	outputFile << "\t\t\t\t" << "else" << endl;
-	outputFile << "\t\t\t\t\t" << "state <= sWait;" << endl;
-	outputFile << "\t\t\t" << "end" << endl;
+	outputFile << "\t\t\t\t" << "sWait: begin" << endl;
+	outputFile << "\t\t\t\t\t" << "Done <= 0;" << endl;
+	outputFile << "\t\t\t\t\t" << "if (Start == 1)" << endl;
+	outputFile << "\t\t\t\t\t\t" << "state <= s2;" << endl;
+	outputFile << "\t\t\t\t\t" << "else" << endl;
+	outputFile << "\t\t\t\t\t\t" << "state <= sWait;" << endl;
+	outputFile << "\t\t\t\t" << "end" << endl;
 
 	/* The actual states */
 	for (i = 0; i < (int)_forceDirectedSchedule.size(); i++) {
-			outputFile << "\t\t\t" << "s";
+			outputFile << "\t\t\t\t" << "s";
 			outputFile << (i + 2);
 			outputFile << ": begin" << endl;
 			for (j = 0; j < (int)_nodes.size(); j++) {
@@ -608,18 +594,19 @@ bool HLSM::writeToFile(char* fileName)
 					writeOperation(&outputFile, j);
 				}
 			}
-			outputFile << "\t\t\t\t" << "state <= ";
-			outputFile << "s" << i + 3 << endl; // May need to fix later on depending on implementation of if/for
-			outputFile << "\t\t\t" << "end" << endl;
+			outputFile << "\t\t\t\t\t" << "state <= ";
+			outputFile << "s" << i + 3 << ";" << endl; // May need to fix later on depending on implementation of if/for
+			outputFile << "\t\t\t\t" << "end" << endl;
 	}
 
 	/* Final State. */
-	outputFile << "\t\t\t" << "sFinal: begin" << endl;
-	outputFile << "\t\t\t\t" << "Done <= 1;" << endl;
-	outputFile << "\t\t\t\t" << "state <= sWait;" << endl;
-	outputFile << "\t\t\t" << "end" << endl;
-	outputFile << "\t\t" << "endcase" << endl;
-	outputFile << "\t" << "end" << endl << endl;
+	outputFile << "\t\t\t\t" << "sFinal: begin" << endl;
+	outputFile << "\t\t\t\t\t" << "Done <= 1;" << endl;
+	outputFile << "\t\t\t\t\t" << "state <= sWait;" << endl;
+	outputFile << "\t\t\t\t" << "end" << endl;
+	outputFile << "\t\t\t" << "endcase" << endl;
+	outputFile << "\t\t" << "end" << endl;
+	outputFile << "\t" << "end" << endl;
 
 	/* End Module. */
 	outputFile << endl << "endmodule" << endl;
@@ -639,27 +626,54 @@ bool HLSM::writeOperation(ofstream *outputFile, int nodeIndex) {
 	}
 
 	/* Write the operation. */
-	// ADD		DONE	PRINTS
-	// SUB		DONE	PRINTS	
-	// MULT		DONE	PRINTS
-	// GREATER	?		?
-	// LESSER	?		?
-	// EQUAL	?		?
-	// MUX		?		?
-	// SHR		?		?
-	// SHL		?		?
-	// DIV		DONE	?
-	// MODULO	DONE	?
-	// INC		?		?
-	// DEC		?		?
+	// Funct	If		Print	vTest
+	// ADD		Y		Y		N
+	// SUB		Y		Y		N
+	// MULT		Y		Y		N
+	// GREATER	Y		Y		N
+	// LESSER	Y		N		N
+	// EQUAL	Y		N		N
+	// MUX		Y		Y		N
+	// SHR		Y		N		N
+	// SHL		Y		N		N
+	// DIV		Y		N		N
+	// MODULO	Y		N		N
+	// INC		Y		N		N
+	// DEC		Y		N		N
 	// const std::string validSymbols[13] = { "=","+" ,"-", "*", ">", "<","==", "?", ":", ">>", "<<", "/", "%" };
 	// _nodes.at(nodeIndex).getOperation();
-	/* ADDITION */ /* SUBTRACTION */ /* MULTIPLICATION */
-	/* DIVISION */ /* MODULO */ /**/
+	/* ADDITION */ /* SUBTRACTION */
+	/* INCREMENT */ /* DECREMENT */
 	if (_nodes.at(nodeIndex).getOperation() == "+" ||
-		_nodes.at(nodeIndex).getOperation() == "-" ||
-		_nodes.at(nodeIndex).getOperation() == "*" ||
-		_nodes.at(nodeIndex).getOperation() == "/") {
+		_nodes.at(nodeIndex).getOperation() == "-") {
+		*outputFile << "\t\t\t\t";
+		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
+		*outputFile << " <= ";
+		/* Inc/Dec */
+		if (_nodes.at(nodeIndex).getInputs().at(1)->getName() == "1") {
+			*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
+			*outputFile << " " << _nodes.at(nodeIndex).getOperation() << _nodes.at(nodeIndex).getOperation();
+			*outputFile << ";" << endl;
+		}
+		/* Not */
+		else {
+			*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
+			*outputFile << " " << _nodes.at(nodeIndex).getOperation() << " ";
+			*outputFile << _nodes.at(nodeIndex).getInputs().at(1)->getName();
+		}
+		*outputFile << ";" << endl;
+	}
+	/* MULTIPLICATION */
+	/* DIVISION */ /* MODULO */ /* GREATER THAN */
+	/* LESSER THAN */ /* EQUAL TO */ /* SHIFT LEFT */
+	/* SHIFT RIGHT */
+	else if (_nodes.at(nodeIndex).getOperation() == "*" ||
+		_nodes.at(nodeIndex).getOperation() == "/" ||
+		_nodes.at(nodeIndex).getOperation() == ">" ||
+		_nodes.at(nodeIndex).getOperation() == "<" ||
+		_nodes.at(nodeIndex).getOperation() == "==" ||
+		_nodes.at(nodeIndex).getOperation() == ">>" ||
+		_nodes.at(nodeIndex).getOperation() == "<<") {
 		*outputFile << "\t\t\t\t";
 		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
 		*outputFile << " <= ";
@@ -668,28 +682,16 @@ bool HLSM::writeOperation(ofstream *outputFile, int nodeIndex) {
 		*outputFile << _nodes.at(nodeIndex).getInputs().at(1)->getName();
 		*outputFile << ";" << endl;
 	}
-	/* GREATER THAN */
-	else if (_nodes.at(nodeIndex).getOperation() == ">") {
-		*outputFile << "\t\t\t\t";
-		*outputFile << "TODO: GREATER THAN";
-		*outputFile << ";" << endl;
-	}
-	/* LESS THAN */
-	else if (_nodes.at(nodeIndex).getOperation() == "<") {
-		*outputFile << "\t\t\t\t";
-		*outputFile << "TODO: LESS THAN";
-		*outputFile << ";" << endl;
-	}
-	/* EQUAL TO */
-	else if (_nodes.at(nodeIndex).getOperation() == "<") {
-		*outputFile << "\t\t\t\t";
-		*outputFile << "TODO: EQUAL TO";
-		*outputFile << ";" << endl;
-	}
 	/* MULTIPLEXOR */
 	else if (_nodes.at(nodeIndex).getOperation() == "?") {
 		*outputFile << "\t\t\t\t";
-		*outputFile << "TODO: MULTIPLEXOR";
+		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
+		*outputFile << " <= ";
+		*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
+		*outputFile << " ? ";
+		*outputFile << _nodes.at(nodeIndex).getInputs().at(1)->getName();
+		*outputFile << " : ";
+		*outputFile << _nodes.at(nodeIndex).getInputs().at(2)->getName();
 		*outputFile << ";" << endl;
 	}
 	/* This is a problem... Awkward. */
@@ -1754,7 +1756,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind1) {
 		k = 0;
-		*outputFile << "\t" << "wire signed ";
+		*outputFile << "\t" << "reg signed ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if ((*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_1) {
@@ -1770,7 +1772,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind2) {
 		k = 0;
-		*outputFile << "\t" << "wire ";
+		*outputFile << "\t" << "reg ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if (!(*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_2) {
@@ -1789,7 +1791,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind2) {
 		k = 0;
-		*outputFile << "\t" << "wire signed ";
+		*outputFile << "\t" << "reg signed ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if ((*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_2) {
@@ -1808,7 +1810,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind8) {
 		k = 0;
-		*outputFile << "\t" << "wire ";
+		*outputFile << "\t" << "reg ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if (!(*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_8) {
@@ -1827,7 +1829,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind8) {
 		k = 0;
-		*outputFile << "\t" << "wire signed ";
+		*outputFile << "\t" << "reg signed ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if ((*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_8) {
@@ -1846,7 +1848,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind16) {
 		k = 0;
-		*outputFile << "\t" << "wire ";
+		*outputFile << "\t" << "reg ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if (!(*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_16) {
@@ -1865,7 +1867,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind16) {
 		k = 0;
-		*outputFile << "\t" << "wire signed ";
+		*outputFile << "\t" << "reg signed ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if ((*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_16) {
@@ -1884,7 +1886,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind32) {
 		k = 0;
-		*outputFile << "\t" << "wire ";
+		*outputFile << "\t" << "reg ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if (!(*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_32) {
@@ -1903,7 +1905,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind32) {
 		k = 0;
-		*outputFile << "\t" << "wire signed ";
+		*outputFile << "\t" << "reg signed ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if ((*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_32) {
@@ -1922,7 +1924,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind64) {
 		k = 0;
-		*outputFile << "\t" << "wire ";
+		*outputFile << "\t" << "reg ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if (!(*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_64) {
@@ -1941,7 +1943,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind64) {
 		k = 0;
-		*outputFile << "\t" << "wire signed ";
+		*outputFile << "\t" << "reg signed ";
 		for (i = 0; i < (int)_variables.size(); i++) {
 			if ((*_variables.at(i)).getSignUnsigned()) {
 				if ((*_variables.at(i)).getDataWidth() == DATAWIDTH_64) {
@@ -1963,6 +1965,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	/* Check for all N/A wires are necessary. */
 	k = 0;
 	j = 0;
+	// NO N/A WIRES NECESSARY IN THIS HLSYN.
 	/*for (i = 0; i < (int)_datapathComponents.size(); i++) {
 		if ((!_datapathComponents.at(i).getName().compare("COMP_lt"))
 			|| (!_datapathComponents.at(i).getName().compare("SCOMP_lt"))

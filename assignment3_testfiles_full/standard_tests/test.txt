@@ -2,7 +2,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
-//Date Created: Sat Dec  3 23:53:50 2016
+//Date Created: Sun Dec  4 01:09:27 2016
 //Assignment: 3
 //File: test.v
 //Description: An HLSM module which represents the C-like behavioral description 
@@ -33,6 +33,7 @@ module HLSM(Clk, Rst, Start, Done a, b, c, z, x);
 	else begin
 		case(state)
 			sWait: begin
+				Done <= 0;
 				if (Start == 1)
 					state <= s2;
 				else
@@ -51,12 +52,12 @@ module HLSM(Clk, Rst, Start, Done a, b, c, z, x);
 				state <= s5
 			end
 			s5: begin
-				TODO: GREATER THAN;
+				g <= d > e;
 				x <= f - d;
 				state <= s6
 			end
 			s6: begin
-				TODO: MULTIPLEXOR;
+				z <= g ? d : e;
 				state <= s7
 			end
 			sFinal: begin
