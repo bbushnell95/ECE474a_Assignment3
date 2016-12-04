@@ -453,6 +453,7 @@ void HLSM::selectNodeToSchedule()
 	_forceDirectedSchedule[timeToBeScheduled].push_back(nodeToBeScheduled);
 	nodeToBeScheduled->setAlapTime(timeToBeScheduled);
 	nodeToBeScheduled->setAsapTime(timeToBeScheduled);
+	nodeToBeScheduled->setFDSTime(timeToBeScheduled);
 }
 
 
