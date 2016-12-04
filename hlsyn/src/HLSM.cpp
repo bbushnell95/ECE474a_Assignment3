@@ -471,7 +471,20 @@ bool HLSM::writeToFile(char* fileName)
 	tempFileName = fileName;
 	for (i = tempFileName.size() - 1; i > 0; i--) {
 		if (tempFileName.at(i) == '\\' || tempFileName.at(i) == '/') {
-			// TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
+			// TODO! MUST FIX! TODO! MUST FIX! TODO! MUST FIX!
 			break;
 		}
 	}
@@ -537,20 +550,23 @@ bool HLSM::writeToFile(char* fileName)
 
 	/* Print the State, NextState */
 	outputFile << "\t" << "reg[";
+	outputFile << "TODO";
 	// outputFie << /* TODO! */
-	outputFile << ":0] State, NextState;" << endl;
+	outputFile << ":0] state;" << endl;
 
 	/* Print the parameters */
 	outputFile << "\t" << "parameter ";
-	outputFile << "Wait = 0,";
+	outputFile << "sWait = 0,";
 	/* Print out all parameters (nodes, really) */
 	for (i = 0; i < (int)_nodes.size(); i++) {
 		outputFile << " s" << i + 2 << " = " << i + 1 << ",";
 	}
-	outputFile << "Final = " << i + 1 << ";" << endl << endl;
+	outputFile << " Final = " << i + 1 << ";" << endl << endl;
 
 	/* Create the case statements. */
 	outputFile << "\t" << "always@(";
+	outputFile << "posedge Clk)";
+	/*
 	for (i = 0; i < (int)_inputs.size(); i++) {
 		outputFile << (*_inputs.at(i)).getName();
 		// if (i != (int)_outputs.size() - 1) {
@@ -558,14 +574,28 @@ bool HLSM::writeToFile(char* fileName)
 		// }
 	}
 	outputFile << "Start ,State) begin" << endl;
-	outputFile << "\t\t" << "case(State)" << endl;
+	*/
+	outputFile << " begin" << endl;
+
+	/* Reset condition. */
+	outputFile << "\t\t" << "if(Rst == 1) begin" << endl;
+	outputFile << "\t\t\t" << "state <= sWait;" << endl;
+	outputFile << "\t\t\t" << "Done <= 0;" << endl;
+	for (i = 0; i < (int)_outputs.size(); i++) {
+		outputFile << "\t\t\t" << _outputs.at(i)->getName() << " <= 0;" << endl;
+	}
+	outputFile << "\t" << "end" << endl;
+
+	/* HLSM Now! */
+	outputFile << "\t" << "else begin" << endl;
+	outputFile << "\t\t" << "case(state)" << endl;
 	
 	/* Wait State. */
-	outputFile << "\t\t\t" << "Wait: begin" << endl;
-	outputFile << "\t\t\t\t" << "if (Start)" << endl;
-	outputFile << "\t\t\t\t\t" << "NextState <= s2;" << endl;
+	outputFile << "\t\t\t" << "sWait: begin" << endl;
+	outputFile << "\t\t\t\t" << "if (Start == 1)" << endl;
+	outputFile << "\t\t\t\t\t" << "state <= s2;" << endl;
 	outputFile << "\t\t\t\t" << "else" << endl;
-	outputFile << "\t\t\t\t\t" << "NextState <= Wait;" << endl;
+	outputFile << "\t\t\t\t\t" << "state <= sWait;" << endl;
 	outputFile << "\t\t\t" << "end" << endl;
 
 	/* The actual states */
@@ -574,7 +604,7 @@ bool HLSM::writeToFile(char* fileName)
 			outputFile << (i + 2);
 			outputFile << ": begin" << endl;
 			for (j = 0; j < (int)_nodes.size(); j++) {
-					if (/*_nodes.at(j).getFDSTime()*/ _nodes.at(j).getAsapTime() == i) {
+					if (_nodes.at(j).getFDSTime() == i) {
 					writeOperation(&outputFile, _nodes.at(j));
 				}
 			}
@@ -591,13 +621,14 @@ bool HLSM::writeToFile(char* fileName)
 	outputFile << "\t\t" << "endcase" << endl;
 	outputFile << "\t" << "end" << endl << endl;
 
-	/* Create the dependence upon Clk and Rst. */
+	/* Create the dependence upon Clk and Rst.
 	outputFile << "\t" << "always@(posedge Clk) begin" << endl;
 	outputFile << "\t\t" << "if (Rst)" << endl;
 	outputFile << "\t\t\t" << "State <= Wait;" << endl;
 	outputFile << "\t\t" << "else" << endl;
 	outputFile << "\t\t\t" << "State <= NextState;" << endl;
 	outputFile << "\t" << "end" << endl;
+	*/
 
 	/* End Module. */
 	outputFile << endl << "endmodule" << endl;
@@ -620,7 +651,7 @@ bool HLSM::writeOperation(ofstream *outputFile, Node caseNode) {
 
 	/* Write the operation. */
 	nodeOp = caseNode.getOperation();
-	*outputFile << "\t\t\t\t";
+	*outputFile << "\t\t\t\t" << "TODO";
 
 	*outputFile << endl;
 
