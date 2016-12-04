@@ -415,61 +415,11 @@ void HLSM::calculateNodePredecessorSuccessorForces()
 	std::vector<Node*> prevNodes;
 	std::vector<Node*> succNodes;
 
-
+	/* Calculate the successor and predecessor forces for all nodes. */
 	for (i = 0; i < (int)_nodes.size(); ++i) {
 		_nodes.at(i).calculateSuccessorForce(_multDistribution, _addSubDistribution, _modDivDistribution, _logicDistribution);
 		_nodes.at(i).calculatePredecessorForce(_multDistribution, _addSubDistribution, _modDivDistribution, _logicDistribution);
 	}
-
-	/* FOR REFERENCE:
-	(FROM calculateNodeSelfForces) */
-	/*
-	for (i = 0; i < _nodes.size(); ++i) {
-		if (_nodes.at(i).getOperation() == "*") {
-			_nodes.at(i).calculateSelfForce(_multDistribution);
-		}
-		else if (_nodes.at(i).getOperation() == "+" || _nodes.at(i).getOperation() == "-") {
-			_nodes.at(i).calculateSelfForce(_addSubDistribution);
-		}
-		else if (_nodes.at(i).getOperation() == "/" || _nodes.at(i).getOperation() == "%") {
-			_nodes.at(i).calculateSelfForce(_modDivDistribution);
-		}
-		else {
-			_nodes.at(i).calculateSelfForce(_logicDistribution);
-		}
-	}
-	*/
-
-	// Calculate forces from other nodes.
-	for (i = 0; i < (int)_nodes.size(); ++i) {
-		/* Clear the last node's predecessor and successor. 
-		prevNodes.clear();
-		succNodes.clear();
-		/* Look at the node's predecessor and successor. 
-		prevNodes = _nodes.at(i).getPreviousNodes();
-		succNodes = _nodes.at(i).getNextNodes();
-
-		/* Calculate predecessor forces. */
-		if (prevNodes.size() != 0) {
-			for (j = 0; j < (int)prevNodes.size(); j++) {
-				/* Brett... Different ways to handle this from what I can see...
-				Send each previous node individually
-				send all previous nodes together
-
-				*/
-				// _nodes.at(i).calculatePredecessorForce(prevNodes(j));
-				// TODO!
-			}
-		}
-
-		/* Calculate successor forces. */
-		if (succNodes.size() != 0) {
-			for (j = 0; j < (int)succNodes.size(); j++) {
-				// TODO!
-			}
-		}
-	}
-
 
 }
 
@@ -623,7 +573,7 @@ bool HLSM::writeToFile(char* fileName)
 			outputFile << (i + 2);
 			outputFile << ": begin" << endl;
 			for (j = 0; j < (int)_nodes.size(); j++) {
-				if (_nodes.at(j).getFDSTime() == i) {
+					if (/*_nodes.at(j).getFDSTime()*/ _nodes.at(j).getAsapTime() == i) {
 					writeOperation(&outputFile, _nodes.at(j));
 				}
 			}
