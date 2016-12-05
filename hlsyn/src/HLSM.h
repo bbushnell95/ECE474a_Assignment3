@@ -87,6 +87,7 @@ public:
 	bool writeVarsToFile(std::ofstream *outputFile);
 	bool checkIfComment(std::string checkString);
 	void clearAlgothrimVectors();
+	void ifCheckStringIsIf(std::ifstream *inputFile, std::string checkString);
 };
 
 #endif // HLSM_H

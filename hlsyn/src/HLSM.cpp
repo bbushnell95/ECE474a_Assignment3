@@ -616,8 +616,8 @@ bool HLSM::writeToFile(char* fileName)
 	return true;
 
 }
-
-bool HLSM::writeOperation(ofstream *outputFile, int nodeIndex) {
+//bool writeOperation(std::ofstream *outputFile, int nodeIndex);
+bool HLSM::writeOperation(std::ofstream *outputFile, int nodeIndex) {
 
 	/* Make sure it is still open. */
 	if (!(*outputFile).is_open()) {
@@ -2007,3 +2007,5 @@ void HLSM::clearAlgothrimVectors()
 	//_asapSchedule.clear();
 	//_alapShcedule.clear();
 }
+
+

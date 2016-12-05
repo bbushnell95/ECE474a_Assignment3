@@ -17,6 +17,7 @@ Node::Node()
 	asapTime = 0;
 	alapTime = 0;
 	scheduled = false;
+	conditional = false;
 }
 
 Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<DataType*> _outputs)
@@ -31,6 +32,7 @@ Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<D
 	asapTime = 0;
 	alapTime = 0;
 	scheduled = false;
+	conditional = false;
 }
 
 std::string Node::getOperation()
@@ -183,6 +185,16 @@ void Node::setScheduled(bool s)
 	scheduled = s;
 }
 
+bool Node::getConditional()
+{
+	return conditional;
+}
+
+void Node::setConditional(bool c)
+{
+	conditional = c;
+}
+
 
 void Node::addInput(DataType* newInput)
 {
@@ -202,6 +214,16 @@ void Node::addPreviousNode(Node * previousNode)
 void Node::addNextNode(Node * nextNode) 
 {
 	_nextNodes.push_back(nextNode);
+}
+
+void Node::addNextIfNode(Node * nextNode)
+{
+	_nextIfNodes.push_back(nextNode);
+}
+
+void Node::addNextElseNode(Node * nextNode)
+{
+	_nextElseNodes.push_back(nextNode);
 }
 
 void Node::assignOperationProbability(int latency)

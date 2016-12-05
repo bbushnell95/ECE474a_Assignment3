@@ -35,6 +35,8 @@ private:
 	std::vector<DataType*> _componentOutputs;
 	std::vector<Node*> _previousNodes;
 	std::vector<Node*> _nextNodes;
+	std::vector<Node*> _nextIfNodes;
+	std::vector<Node*> _nextElseNodes;
 	std::vector<double> _operationProbability;
 	std::vector<double> _selfForce;
 	std::vector<double> _predecessorForce;
@@ -47,6 +49,7 @@ private:
 	int fdsTime;
 	char visited;
 	bool scheduled;
+	bool conditional;
 
 
 public:
@@ -67,6 +70,10 @@ public:
 	void setPreviousNodes(std::vector<Node*> pN);
 	std::vector<Node*> getNextNodes();
 	void setNextNodes(std::vector<Node*> nN);
+	std::vector<Node*> getNextIfNodes();
+	std::vector<Node*> setNextIfNodes();
+	std::vector<Node*> getNextElseNodes();
+	std::vector<Node*> setNextElseNodes();
 	std::vector<double> getOperationProbability();
 	void setOperationProbability(std::vector<double> oP);
 	std::vector<double> getTotalForces();
@@ -85,10 +92,14 @@ public:
 	void setFDSTime(int fT);
 	bool getScheduled();
 	void setScheduled(bool s);
+	bool getConditional();
+	void setConditional(bool c);
 	void addInput(DataType* newInput);
 	void addOutput(DataType* newOutput);
 	void addPreviousNode(Node* previousNode);
 	void addNextNode(Node* nextNode);
+	void addNextIfNode(Node* nextNode);
+	void addNextElseNode(Node* nextNode);
 	void assignOperationProbability(int latency);
 	void calculateSelfForce(std::vector<double> typeDistribution);
 	void calculatePredecessorForce(std::vector<double> multDistribution, std::vector<double> addSubDistribution, std::vector<double> modDivDistribution, std::vector<double> logicDistribution);
