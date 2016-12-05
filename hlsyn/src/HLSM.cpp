@@ -506,7 +506,6 @@ void HLSM::selectNodeToSchedule()
 	nodeToBeScheduled->setFDSTime(timeToBeScheduled);
 }
 
-
 bool HLSM::writeToFile(char* fileName)
 {
 	/* Set up variables. */
@@ -851,7 +850,6 @@ void HLSM::createNewVariableVariable(std::string checkString, int dataWidthIndex
 	}
 }
 
-
 void HLSM::createNewInput(std::string name, bool sign, int dataWidth)
 {
 	Input* newInput = new Input(name, sign, dataWidth);
@@ -872,7 +870,6 @@ void HLSM::createNewVariable(std::string name, bool sign, int dataWidth)
 
 	_variables.push_back(newVariable);
 }
-
 
 bool HLSM::checkVariable(std::string checkName, int* outputIndex, int* inputIndex, int* wireIndex)
 {
@@ -1012,8 +1009,6 @@ bool HLSM::checkValidSymbol(std::string checkSymbol, std::string* operation)
 	}
 	return foundValidSymbol;
 }
-
-
 
 bool HLSM::writeInputsToFile(ofstream *outputFile, int i, int j)
 {
