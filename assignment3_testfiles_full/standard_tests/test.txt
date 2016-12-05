@@ -2,11 +2,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
-<<<<<<< HEAD
-//Date Created: Thu Dec  1 11:51:24 2016
-=======
-//Date Created: Thu Dec  1 10:10:36 2016
->>>>>>> 98ab0e89dbc19e6fc1214e3fd30b976ca9cb4993
+//Date Created: Sun Dec  4 01:09:27 2016
 //Assignment: 3
 //File: test.v
 //Description: An HLSM module which represents the C-like behavioral description 
@@ -24,57 +20,52 @@ module HLSM(Clk, Rst, Start, Done a, b, c, z, x);
 
 	wire [7:0] d, e, f, g;
 
-	reg[:0] State, NextState;
-	parameter Wait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, s7 = 6,Final = 7;
+	reg[TODO:0] state;
+	parameter sWait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, s7 = 6, sFinal = 7;
 
-	always@(a, b, c, Start ,State) begin
-		case(State)
-			Wait: begin
-				if (Start)
-					NextState <= s2;
+	always@(posedge Clk) begin
+		if(Rst == 1) begin
+			state <= sWait;
+			Done <= 0;
+			z <= 0;
+			x <= 0;
+	end
+	else begin
+		case(state)
+			sWait: begin
+				Done <= 0;
+				if (Start == 1)
+					state <= s2;
 				else
-					NextState <= Wait;
+					state <= sWait;
 			end
 			s2: begin
-				NextState <= TODO
+				d <= a + b;
+				f <= a * c;
+				state <= s3
 			end
-<<<<<<< HEAD
 			s3: begin
-				NextState <= TODO
+				state <= s4
 			end
 			s4: begin
-				NextState <= TODO
+				e <= a + c;
+				state <= s5
 			end
 			s5: begin
-				NextState <= TODO
+				g <= d > e;
+				x <= f - d;
+				state <= s6
 			end
 			s6: begin
-=======
-			s9: begin
-				NextState <= TODO
+				z <= g ? d : e;
+				state <= s7
 			end
-			s10: begin
-				NextState <= TODO
-			end
-			s11: begin
-				NextState <= TODO
-			end
-			s12: begin
->>>>>>> 98ab0e89dbc19e6fc1214e3fd30b976ca9cb4993
-				NextState <= TODO
-			end
-			Final: begin
+			sFinal: begin
 				Done <= 1;
-				NextState <= Wait;
+				state <= sWait;
 			end
 		endcase
 	end
 
-	always@(posedge Clk) begin
-		if (Rst)
-			State <= Wait;
-		else
-			State <= NextState;
-	end
 
 endmodule
