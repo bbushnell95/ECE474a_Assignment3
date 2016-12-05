@@ -536,22 +536,21 @@ bool HLSM::writeToFile(char* fileName)
 	/* Print Clk, Rst. */
 	// outputFile << "\t" << "input clk, rst;" << endl;
 	outputFile << "\t" << "input Clk, Rst, Start;" << endl;
-	outputFile << "\t" << "output reg Done;" << endl;
+	outputFile << "\t" << "output reg Done;" << endl << endl;
 
 	/* Print Inputs, Outputs, Wires. */
 	writeVarsToFile(&outputFile);
 
 	/* Print the State, NextState */
 	outputFile << "\t" << "reg[";
-	outputFile << "TODO";
-	// outputFie << /* TODO! */
+	outputFile << log2(_nodes.size() + 2);
 	outputFile << ":0] state;" << endl;
 
 	/* Print the parameters */
 	outputFile << "\t" << "parameter ";
 	outputFile << "sWait = 0,";
 	/* Print out all parameters (nodes, really) */
-	for (i = 0; i < (int)_nodes.size(); i++) {
+	for (i = 0; i < (int)_nodes.size() - 1; i++) {
 		outputFile << " s" << i + 2 << " = " << i + 1 << ",";
 	}
 	outputFile << " sFinal = " << i + 1 << ";" << endl << endl;
@@ -560,7 +559,7 @@ bool HLSM::writeToFile(char* fileName)
 	outputFile << "\t" << "always@(";
 	outputFile << "posedge Clk)";
 	outputFile << " begin" << endl;
-
+	
 	/* Reset condition. */
 	outputFile << "\t\t" << "if(Rst == 1) begin" << endl;
 	outputFile << "\t\t\t" << "state <= sWait;" << endl;
@@ -594,7 +593,12 @@ bool HLSM::writeToFile(char* fileName)
 				}
 			}
 			outputFile << "\t\t\t\t\t" << "state <= ";
-			outputFile << "s" << i + 3 << ";" << endl; // May need to fix later on depending on implementation of if/for
+			if (i < (int)_forceDirectedSchedule.size() - 1) {
+				outputFile << "s" << i + 3 << ";" << endl;
+			}
+			else {
+				outputFile << "sFinal;" << endl;
+			}
 			outputFile << "\t\t\t\t" << "end" << endl;
 	}
 
@@ -645,7 +649,7 @@ bool HLSM::writeOperation(std::ofstream *outputFile, int nodeIndex) {
 	/* INCREMENT */ /* DECREMENT */
 	if (_nodes.at(nodeIndex).getOperation() == "+" ||
 		_nodes.at(nodeIndex).getOperation() == "-") {
-		*outputFile << "\t\t\t\t";
+		*outputFile << "\t\t\t\t\t";
 		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
 		*outputFile << " <= ";
 		/* Inc/Dec */
@@ -673,7 +677,7 @@ bool HLSM::writeOperation(std::ofstream *outputFile, int nodeIndex) {
 		_nodes.at(nodeIndex).getOperation() == "==" ||
 		_nodes.at(nodeIndex).getOperation() == ">>" ||
 		_nodes.at(nodeIndex).getOperation() == "<<") {
-		*outputFile << "\t\t\t\t";
+		*outputFile << "\t\t\t\t\t";
 		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
 		*outputFile << " <= ";
 		*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
@@ -683,7 +687,7 @@ bool HLSM::writeOperation(std::ofstream *outputFile, int nodeIndex) {
 	}
 	/* MULTIPLEXOR */
 	else if (_nodes.at(nodeIndex).getOperation() == "?") {
-		*outputFile << "\t\t\t\t";
+		*outputFile << "\t\t\t\t\t";
 		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
 		*outputFile << " <= ";
 		*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
@@ -693,11 +697,22 @@ bool HLSM::writeOperation(std::ofstream *outputFile, int nodeIndex) {
 		*outputFile << _nodes.at(nodeIndex).getInputs().at(2)->getName();
 		*outputFile << ";" << endl;
 	}
+	/* IF STATEMENTS */
+	else if (_nodes.at(nodeIndex).getOperation() == "if") {
+		*outputFile << "\t\t\t\t\t";
+		*outputFile << "if ( ";
+		*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
+		*outputFile << " )" << endl;
+		/* Else Statement Present? */
+		if ((int)_nodes.at(nodeIndex).getNextNodes().size() != 1) {
+			*outputFile << "\t\t\t\t\t";
+			*outputFile << "else" << endl;
+		}
+	}
 	/* This is a problem... Awkward. */
 	else {
-		*outputFile << "\t\t\t\t" << "TODO <= TODO TODO TODO;" << endl;
-		// REMEMBER TO CHANGE THIS TO FIX.
-		// return false;
+		// There is no defined structure.
+		return false;
 	}
 	
 	return true;
