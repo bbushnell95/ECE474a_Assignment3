@@ -21,7 +21,7 @@ class State;
 class State {
 private:
 	// int stateNum;
-	std::vector<Node*> assignedNodes;
+	std::vector<Node*> _assignedNodes;
 
 public:
 	/*Methods*/

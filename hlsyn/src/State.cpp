@@ -19,13 +19,16 @@ int State::getStateNum()
 	return stateNum;
 }
 */
+State::State()
+{
+}
 
 void State::addAssignedNode(Node* addNode)
 {
-	assignedNodes.push_back(addNode);
+	_assignedNodes.push_back(addNode);
 }
 
 std::vector<Node*> State::getAssignedNodes()
 {
-	return assignedNodes;
+	return _assignedNodes;
 }
