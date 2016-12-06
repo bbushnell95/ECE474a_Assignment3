@@ -56,7 +56,7 @@ public:
 	/*Methods*/
 	bool readFile(char* fileName);
 	void createUnscheduledGraph();
-	void scheduleGraph(int latency);
+	bool scheduleGraph(int latency);
 	void asapSchedule(int latency);
 	void alapSchedule(int latency);
 	void calculateOperationProbability(int latency);

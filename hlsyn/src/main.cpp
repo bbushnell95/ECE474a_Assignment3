@@ -36,7 +36,12 @@ int main(int argc, char *argv[])
 	}
 
 	/* Create the scheduled graph. */
-	newHLSM.scheduleGraph(atoi(argv[2]));
+	if (!newHLSM.scheduleGraph(atoi(argv[2]))) {
+		cout << endl;
+		cout << "Can not schedule operations with given latency" << endl;
+		cout << endl << endl;
+		return EXIT_FAILURE;
+	}
 
 	/* Write to the verilog file */
 	if (!newHLSM.writeToFile(argv[3])) {
