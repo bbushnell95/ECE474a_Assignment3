@@ -238,7 +238,7 @@ void HLSM::scheduleGraph(int latency)
 		++scheduledNodes;
 	}
 
-	createGraph();
+	//createGraph();
 }
 
 void HLSM::asapSchedule(int latency)
@@ -382,17 +382,17 @@ void HLSM::calculateTypeDistributionProbability(int latency)
 		_logicDistribution.push_back(0.0);
 		//loop for the nodes
 		for (j = 0; j < (int)_nodes.size(); ++j) {
-			if (_nodes.at(j).getOperation() == "*") {
-				_multDistribution[i] = _multDistribution[i] + _nodes.at(j).getOperationProbability().at(i);
+			if (_nodes.at(j)->getOperation() == "*") {
+				_multDistribution[i] = _multDistribution[i] + _nodes.at(j)->getOperationProbability().at(i);
 			}
-			else if (_nodes.at(j).getOperation() == "+" || _nodes.at(j).getOperation() == "-") {
-				_addSubDistribution[i] = _addSubDistribution[i] + _nodes.at(j).getOperationProbability().at(i);
+			else if (_nodes.at(j)->getOperation() == "+" || _nodes.at(j)->getOperation() == "-") {
+				_addSubDistribution[i] = _addSubDistribution[i] + _nodes.at(j)->getOperationProbability().at(i);
 			}
-			else if (_nodes.at(j).getOperation() == "/" || _nodes.at(j).getOperation() == "%") {
-				_modDivDistribution[i] = _modDivDistribution[i] + _nodes.at(j).getOperationProbability().at(i);
+			else if (_nodes.at(j)->getOperation() == "/" || _nodes.at(j)->getOperation() == "%") {
+				_modDivDistribution[i] = _modDivDistribution[i] + _nodes.at(j)->getOperationProbability().at(i);
 			}
 			else {
-				_logicDistribution[i] = _logicDistribution[i] + _nodes.at(j).getOperationProbability().at(i);
+				_logicDistribution[i] = _logicDistribution[i] + _nodes.at(j)->getOperationProbability().at(i);
 			}
 		}
 	}
@@ -405,17 +405,17 @@ void HLSM::calculateNodeSelfForces()
 	int i = 0;
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
-		if (_nodes.at(i).getOperation() == "*") {
-			_nodes.at(i).calculateSelfForce(_multDistribution);
+		if (_nodes.at(i)->getOperation() == "*") {
+			_nodes.at(i)->calculateSelfForce(_multDistribution);
 		}
-		else if (_nodes.at(i).getOperation() == "+" || _nodes.at(i).getOperation() == "-") {
-			_nodes.at(i).calculateSelfForce(_addSubDistribution);
+		else if (_nodes.at(i)->getOperation() == "+" || _nodes.at(i)->getOperation() == "-") {
+			_nodes.at(i)->calculateSelfForce(_addSubDistribution);
 		}
-		else if (_nodes.at(i).getOperation() == "/" || _nodes.at(i).getOperation() == "%") {
-			_nodes.at(i).calculateSelfForce(_modDivDistribution);
+		else if (_nodes.at(i)->getOperation() == "/" || _nodes.at(i)->getOperation() == "%") {
+			_nodes.at(i)->calculateSelfForce(_modDivDistribution);
 		}
 		else {
-			_nodes.at(i).calculateSelfForce(_logicDistribution);
+			_nodes.at(i)->calculateSelfForce(_logicDistribution);
 		}
 	}
 }
@@ -429,8 +429,8 @@ void HLSM::calculateNodePredecessorSuccessorForces()
 
 	/* Calculate the successor and predecessor forces for all nodes. */
 	for (i = 0; i < (int)_nodes.size(); ++i) {
-		_nodes.at(i).calculateSuccessorForce(_multDistribution, _addSubDistribution, _modDivDistribution, _logicDistribution);
-		_nodes.at(i).calculatePredecessorForce(_multDistribution, _addSubDistribution, _modDivDistribution, _logicDistribution);
+		_nodes.at(i)->calculateSuccessorForce(_multDistribution, _addSubDistribution, _modDivDistribution, _logicDistribution);
+		_nodes.at(i)->calculatePredecessorForce(_multDistribution, _addSubDistribution, _modDivDistribution, _logicDistribution);
 	}
 
 }
@@ -440,7 +440,7 @@ void HLSM::calculateNodeTotalForces()
 	int i = 0;
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
-		_nodes.at(i).calculateTotalForce();
+		_nodes.at(i)->calculateTotalForce();
 	}
 }
 
@@ -453,11 +453,11 @@ void HLSM::selectNodeToSchedule()
 	Node* nodeToBeScheduled = NULL;
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
-		for (j = 0; j < (int)_nodes[i].getTotalForces().size(); ++j) {
-			if (_nodes[i].getTotalForces().at(j) < mostNegativeForce && !_nodes[i].getScheduled()) {
-				mostNegativeForce = _nodes[i].getTotalForces().at(j);
+		for (j = 0; j < (int)_nodes[i]->getTotalForces().size(); ++j) {
+			if (_nodes[i]->getTotalForces().at(j) < mostNegativeForce && !_nodes[i]->getScheduled()) {
+				mostNegativeForce = _nodes[i]->getTotalForces().at(j);
 				timeToBeScheduled = j;
-				nodeToBeScheduled = &_nodes[i];
+				nodeToBeScheduled = _nodes[i];
 			}
 		}
 	}
@@ -653,25 +653,25 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 		*outputFile << (i + 2);
 		*outputFile << ": begin" << endl;
 		for (j = 0; j < (int)_nodes.size() - 1; j++) {
-			if (_nodes.at(j).getFDSTime() == i) { // FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX
+			if (_nodes.at(j)->getFDSTime() == i) { // FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX
 				/* ADDITION */ /* SUBTRACTION */
 				/* INCREMENT */ /* DECREMENT */
-				if (_nodes.at(j).getOperation() == "+" ||
-					_nodes.at(j).getOperation() == "-") {
+				if (_nodes.at(j)->getOperation() == "+" ||
+					_nodes.at(j)->getOperation() == "-") {
 					*outputFile << "\t\t\t\t\t";
-					*outputFile << _nodes.at(j).getOutputs().at(0)->getName();
+					*outputFile << _nodes.at(j)->getOutputs().at(0)->getName();
 					*outputFile << " <= ";
 					/* Inc/Dec */
-					if (_nodes.at(j).getInputs().at(1)->getName() == "1") {
-						*outputFile << _nodes.at(j).getInputs().at(0)->getName();
-						*outputFile << " " << _nodes.at(j).getOperation() << _nodes.at(j).getOperation();
+					if (_nodes.at(j)->getInputs().at(1)->getName() == "1") {
+						*outputFile << _nodes.at(j)->getInputs().at(0)->getName();
+						*outputFile << " " << _nodes.at(j)->getOperation() << _nodes.at(j)->getOperation();
 						*outputFile << ";" << endl;
 					}
 					/* Not */
 					else {
-						*outputFile << _nodes.at(j).getInputs().at(0)->getName();
-						*outputFile << " " << _nodes.at(j).getOperation() << " ";
-						*outputFile << _nodes.at(j).getInputs().at(1)->getName();
+						*outputFile << _nodes.at(j)->getInputs().at(0)->getName();
+						*outputFile << " " << _nodes.at(j)->getOperation() << " ";
+						*outputFile << _nodes.at(j)->getInputs().at(1)->getName();
 					}
 					*outputFile << ";" << endl;
 				}
@@ -679,39 +679,39 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 				/* DIVISION */ /* MODULO */ /* GREATER THAN */
 				/* LESSER THAN */ /* EQUAL TO */ /* SHIFT LEFT */
 				/* SHIFT RIGHT */
-				else if (_nodes.at(j).getOperation() == "*" ||
-					_nodes.at(j).getOperation() == "/" ||
-					_nodes.at(j).getOperation() == ">" ||
-					_nodes.at(j).getOperation() == "<" ||
-					_nodes.at(j).getOperation() == "==" ||
-					_nodes.at(j).getOperation() == ">>" ||
-					_nodes.at(j).getOperation() == "<<") {
+				else if (_nodes.at(j)->getOperation() == "*" ||
+					_nodes.at(j)->getOperation() == "/" ||
+					_nodes.at(j)->getOperation() == ">" ||
+					_nodes.at(j)->getOperation() == "<" ||
+					_nodes.at(j)->getOperation() == "==" ||
+					_nodes.at(j)->getOperation() == ">>" ||
+					_nodes.at(j)->getOperation() == "<<") {
 					*outputFile << "\t\t\t\t\t";
-					*outputFile << _nodes.at(j).getOutputs().at(0)->getName();
+					*outputFile << _nodes.at(j)->getOutputs().at(0)->getName();
 					*outputFile << " <= ";
-					*outputFile << _nodes.at(j).getInputs().at(0)->getName();
-					*outputFile << " " << _nodes.at(j).getOperation() << " ";
-					*outputFile << _nodes.at(j).getInputs().at(1)->getName();
+					*outputFile << _nodes.at(j)->getInputs().at(0)->getName();
+					*outputFile << " " << _nodes.at(j)->getOperation() << " ";
+					*outputFile << _nodes.at(j)->getInputs().at(1)->getName();
 					*outputFile << ";" << endl;
 				}
 				/* MULTIPLEXOR */
-				else if (_nodes.at(j).getOperation() == "?") {
+				else if (_nodes.at(j)->getOperation() == "?") {
 					*outputFile << "\t\t\t\t\t";
-					*outputFile << _nodes.at(j).getOutputs().at(0)->getName();
+					*outputFile << _nodes.at(j)->getOutputs().at(0)->getName();
 					*outputFile << " <= ";
-					*outputFile << _nodes.at(j).getInputs().at(0)->getName();
+					*outputFile << _nodes.at(j)->getInputs().at(0)->getName();
 					*outputFile << " ? ";
-					*outputFile << _nodes.at(j).getInputs().at(1)->getName();
+					*outputFile << _nodes.at(j)->getInputs().at(1)->getName();
 					*outputFile << " : ";
-					*outputFile << _nodes.at(j).getInputs().at(2)->getName();
+					*outputFile << _nodes.at(j)->getInputs().at(2)->getName();
 					*outputFile << ";" << endl;
 				}
 				/* IF STATEMENTS */
-				else if (_nodes.at(j).getOperation() == "if") {
+				else if (_nodes.at(j)->getOperation() == "if") {
 					/* If */
 					*outputFile << "\t\t\t\t\t";
 					*outputFile << "if ( ";
-					*outputFile << _nodes.at(j).getInputs().at(0)->getName();
+					*outputFile << _nodes.at(j)->getInputs().at(0)->getName();
 					*outputFile << " != 0 )" << endl;
 					// *outputFile << _nodes.at(j).getNextIfNodes().at(0)->getFDSTime();
 					*outputFile << "\t\t\t\t\t" << "state <= ";
@@ -728,7 +728,7 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 				}
 			}
 		}
-		if (_nodes.at(j).getOperation() == "if") {
+		if (_nodes.at(j)->getOperation() == "if") {
 			/* Handled above. */
 		}
 		else {
@@ -1068,7 +1068,7 @@ void HLSM::createNewNode(std::string operation, int num, std::vector<DataType*> 
 {
 	Node* newNode = new Node(operation, num, _Cinputs, _Coutputs);
 
-	_nodes.push_back(*newNode);
+	_nodes.push_back(newNode);
 }
 
 bool HLSM::checkValidSymbol(std::string checkSymbol, std::string* operation)
@@ -2072,7 +2072,7 @@ void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 	int regIndex = -1;
 	
 	createNewNode(checkString, _nodes.size() + 1, vector<DataType*>(), vector<DataType*>());
-	currNode = &_nodes.at(_nodes.size() - 1);
+	currNode = _nodes.at(_nodes.size() - 1);
 	currNodeIndex = _nodes.size() - 1;
 	currNode->setConditional(true);
 
@@ -2128,7 +2128,7 @@ void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 						return;
 					}
 				}
-				_nodes.at(_nodes.size() - 1).addPreviousNode(&_nodes.at(currNodeIndex));
+				_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(currNodeIndex));
 				*inputFile >> checkString;
 			}
 		}
