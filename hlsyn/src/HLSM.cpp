@@ -182,23 +182,23 @@ void HLSM::createUnscheduledGraph()
 				for (k = 0; k < (int)_nodes.at(i)->getOutputs().at(j)->getGoingTo().size(); ++k) {
 					//want to see to make sure next node is not a mux, unless current node is a equal to, greater than, or less than node
 					if ((_nodes.at(i)->getOutputs().at(j)->getGoingTo().at(k)->getOperation().compare("?"))
-						|| (!_nodes.at(i).getOperation().compare("==")
-						|| !_nodes.at(i).getOperation().compare(">")
-						|| !_nodes.at(i).getOperation().compare("<"))) {
-						_nodes.at(i).addNextNode(_nodes.at(i).getOutputs().at(j)->getGoingTo().at(k));
+						|| (!_nodes.at(i)->getOperation().compare("==")
+						|| !_nodes.at(i)->getOperation().compare(">")
+						|| !_nodes.at(i)->getOperation().compare("<"))) {
+						_nodes.at(i)->addNextNode(_nodes.at(i)->getOutputs().at(j)->getGoingTo().at(k));
 					}
 				}
 			}
-			for (j = 0; j < (int)_nodes.at(i).getInputs().size(); ++j) {
-				if (_nodes.at(i).getInputs().at(j)->getComingFrom().size() != 0) {
-					_nodes.at(i).addPreviousNode(_nodes.at(i).getInputs().at(j)->getComingFrom().at(0));
+			for (j = 0; j < (int)_nodes.at(i)->getInputs().size(); ++j) {
+				if (_nodes.at(i)->getInputs().at(j)->getComingFrom().size() != 0) {
+					_nodes.at(i)->addPreviousNode(_nodes.at(i)->getInputs().at(j)->getComingFrom().at(0));
 				}
 			}
 		}
 		else {
-			if (!_nodes.at(i).getConditional()) {
-				_nodes.at(i).setNextNodes(_nodes.at(i).getOutputs().at(0)->getGoingTo());
-				_nodes.at(i).setPreviousNodes(_nodes.at(i).getInputs().at(0)->getComingFrom());
+			if (!_nodes.at(i)->getConditional()) {
+				_nodes.at(i)->setNextNodes(_nodes.at(i)->getOutputs().at(0)->getGoingTo());
+				_nodes.at(i)->setPreviousNodes(_nodes.at(i)->getInputs().at(0)->getComingFrom());
 			}
 		}
 	}
@@ -216,7 +216,7 @@ void HLSM::createUnscheduledGraph()
 
 void HLSM::scheduleGraph(int latency)
 {
-	int scheduledNodes = 0; 
+	int scheduledNodes = 0;
 	int i = 0;
 
 	for (i = 0; i < latency; ++i) {
@@ -238,7 +238,6 @@ void HLSM::scheduleGraph(int latency)
 		++scheduledNodes;
 	}
 
-	//createGraph();
 }
 
 void HLSM::asapSchedule(int latency)
@@ -257,28 +256,28 @@ void HLSM::asapSchedule(int latency)
 		for (j = 0; j < (int)_nodes.size(); ++j) {
 			if (i == 0) {
 				//if there are no previous nodes, current node goes into time 1 for asap
-				if (_nodes.at(j).getPreviousNodes().size() == 0) {
-					_asapSchedule[i].push_back(&(_nodes.at(j)));
-					_nodes.at(j).setAsapTime(i);
+				if (_nodes.at(j)->getPreviousNodes().size() == 0) {
+					_asapSchedule[i].push_back(_nodes.at(j));
+					_nodes.at(j)->setAsapTime(i);
 					
 					//Need to account for the delay if there is one
-					for (k = 0; k < (int)_nodes.at(j).getNextNodes().size(); ++k) {
-						if (i + _nodes.at(j).getDelay() > _nodes.at(j).getNextNodes().at(k)->getCycleAllowed()) {
-							_nodes.at(j).getNextNodes().at(k)->setCycleAllowed(i + _nodes.at(j).getDelay());
+					for (k = 0; k < (int)_nodes.at(j)->getNextNodes().size(); ++k) {
+						if (i + _nodes.at(j)->getDelay() > _nodes.at(j)->getNextNodes().at(k)->getCycleAllowed()) {
+							_nodes.at(j)->getNextNodes().at(k)->setCycleAllowed(i + _nodes.at(j)->getDelay());
 						}
 					}
 				}
 			}
 			else {
 				//schedule node if allowed cycle is equal to i
-				if (_nodes.at(j).getCycleAllowed() == i) {
+				if (_nodes.at(j)->getCycleAllowed() == i) {
 					_asapSchedule[i].push_back(&(_nodes.at(j)));
-					_nodes.at(j).setAsapTime(i);
+					_nodes.at(j)->setAsapTime(i);
 					
 					//update nodes allowed cycle time
-					for (k = 0; k < (int)_nodes.at(j).getNextNodes().size(); ++k) {
-						if (i + _nodes.at(j).getDelay() > _nodes.at(j).getNextNodes().at(k)->getCycleAllowed()) {
-							_nodes.at(j).getNextNodes().at(k)->setCycleAllowed(i + _nodes.at(j).getDelay());
+					for (k = 0; k < (int)_nodes.at(j)->getNextNodes().size(); ++k) {
+						if (i + _nodes.at(j)->getDelay() > _nodes.at(j)->getNextNodes().at(k)->getCycleAllowed()) {
+							_nodes.at(j)->getNextNodes().at(k)->setCycleAllowed(i + _nodes.at(j)->getDelay());
 						}
 					}
 				}
@@ -295,7 +294,7 @@ void HLSM::alapSchedule(int latency)
 	int k = 0;
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
-		_nodes.at(i).setCycleAllowed(latency - 1);
+		_nodes.at(i)->setCycleAllowed(latency - 1);
 	}
 
 	//adding empty vectors to the times
@@ -306,48 +305,48 @@ void HLSM::alapSchedule(int latency)
 	for (i = latency - 1; i >= 0; --i) {
 		for (j = 0; j < (int)_nodes.size(); ++j) {
 			if (i == latency - 1) {
-				if (_nodes.at(j).getNextNodes().size() == 0) {
-					if (_nodes.at(j).getDelay() > 1) {
-						_alapShcedule[i - _nodes.at(j).getDelay()].push_back(&(_nodes.at(j)));
-						_nodes.at(j).setAlapTime(i - _nodes.at(j).getDelay());
+				if (_nodes.at(j)->getNextNodes().size() == 0) {
+					if (_nodes.at(j)->getDelay() > 1) {
+						_alapShcedule[i - _nodes.at(j)->getDelay()].push_back(_nodes.at(j));
+						_nodes.at(j)->setAlapTime(i - _nodes.at(j)->getDelay());
 
-						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
-							if (i - _nodes.at(j).getDelay() - 1 < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
-								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						for (k = 0; k < (int)_nodes.at(j)->getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j)->getDelay() - 1 < _nodes.at(j)->getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j)->getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j)->getDelay());
 							}
 						}
 					}
 					else {
 						_alapShcedule[i].push_back(&(_nodes.at(j)));
-						_nodes.at(j).setAlapTime(i);
+						_nodes.at(j)->setAlapTime(i);
 
-						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
-							if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
-								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						for (k = 0; k < (int)_nodes.at(j)->getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j)->getDelay() < _nodes.at(j)->getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j)->getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j)->getDelay());
 							}
 						}
 					}
 				}
 			}
 			else {
-				if (_nodes.at(j).getCycleAllowed() == i) {
-					if (_nodes.at(j).getDelay() > 1) {
-						_alapShcedule[i - _nodes.at(j).getDelay()].push_back(&(_nodes.at(j)));
-						_nodes.at(j).setAlapTime(i - _nodes.at(j).getDelay());
+				if (_nodes.at(j)->getCycleAllowed() == i) {
+					if (_nodes.at(j)->getDelay() > 1) {
+						_alapShcedule[i - _nodes.at(j)->getDelay()].push_back(_nodes.at(j));
+						_nodes.at(j)->setAlapTime(i - _nodes.at(j)->getDelay());
 
-						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
-							if (i - _nodes.at(j).getDelay() - 1 < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
-								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						for (k = 0; k < (int)_nodes.at(j)->getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j)->getDelay() - 1 < _nodes.at(j)->getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j)->getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j)->getDelay());
 							}
 						}
 					}
 					else {
-						_alapShcedule[i].push_back(&(_nodes.at(j)));
-						_nodes.at(j).setAlapTime(i);
+						_alapShcedule[i].push_back(_nodes.at(j));
+						_nodes.at(j)->setAlapTime(i);
 
-						for (k = 0; k < (int)_nodes.at(j).getPreviousNodes().size(); ++k) {
-							if (i - _nodes.at(j).getDelay() < _nodes.at(j).getPreviousNodes().at(k)->getCycleAllowed()) {
-								_nodes.at(j).getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j).getDelay());
+						for (k = 0; k < (int)_nodes.at(j)->getPreviousNodes().size(); ++k) {
+							if (i - _nodes.at(j)->getDelay() < _nodes.at(j)->getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j)->getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j)->getDelay());
 							}
 						}
 					//update nodes allowed cycle time
@@ -364,7 +363,7 @@ void HLSM::calculateOperationProbability(int latency)
 	int i = 0;
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
-		_nodes.at(i).assignOperationProbability(latency);
+		_nodes.at(i)->assignOperationProbability(latency);
 	}
 }
 
@@ -2133,8 +2132,4 @@ void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 			}
 		}
 	}
-}
-
-
-
 }
