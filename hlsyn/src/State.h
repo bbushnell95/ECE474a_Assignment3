@@ -27,6 +27,7 @@ public:
 	/*Methods*/
 	// void setStateNum(int n);
 	// int getStateNum();
+	State();
 	void addAssignedNode(Node* addNode);
 	std::vector<Node*> getAssignedNodes();
 };

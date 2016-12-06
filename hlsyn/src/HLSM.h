@@ -88,6 +88,7 @@ public:
 	int ifCheckStringIsIf(std::ifstream *inputFile, std::string checkString);
 	int createNestedIf(std::ifstream *inputFile, std::string checkString);
 	void createStates();
+	void createNewState();
 };
 
 #endif // HLSM_H
