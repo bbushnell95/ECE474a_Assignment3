@@ -66,7 +66,7 @@ public:
 	void calculateNodeTotalForces();
 	void selectNodeToSchedule();
 	bool writeToFile(char* fileName);
-	bool writeOperations(std::ofstream *outputFile);
+	bool writeStates(std::ofstream *outputFile);
 	//void determineCriticalPath();
 	//void visitComponent(DatapathComponent * compoenent, double currTime, double* cP);
 	void createNewInputVariable(std::string checkString, int dataWidthIndex);
