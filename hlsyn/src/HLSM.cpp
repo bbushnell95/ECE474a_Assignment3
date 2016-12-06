@@ -219,13 +219,16 @@ void HLSM::scheduleGraph(int latency)
 	int scheduledNodes = 0;
 	int i = 0;
 
+	/* Staging. */
 	for (i = 0; i < latency; ++i) {
 		_forceDirectedSchedule.push_back(vector<Node*>());
 	}
 
+	/* Does ASAP/ALAP Scheduling both are req'd for FDS. */
 	asapSchedule(latency);
 	alapSchedule(latency);
 
+	/* Schedules all nodes. */
 	while (scheduledNodes < (int)_nodes.size()) {
 		calculateOperationProbability(latency);
 		calculateTypeDistributionProbability(latency);
@@ -237,6 +240,9 @@ void HLSM::scheduleGraph(int latency)
 
 		++scheduledNodes;
 	}
+
+	/* Creates the states to print. */
+	createStates();
 
 }
 
@@ -619,7 +625,7 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 
 	int i = 0;
 	int j = 0;
-	int k = 0;
+	// int k = 0;
 
 	/* Make sure it is still open. */
 	if (!(*outputFile).is_open()) {
@@ -646,6 +652,120 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 	// const std::string validSymbols[13] = { "=","+" ,"-", "*", ">", "<","==", "?", ":", ">>", "<<", "/", "%" };
 
 	/* Write the operations. */
+	// k = 3;
+	for (i = 0; i < (int)_states.size(); i++) {
+		*outputFile << "\t\t\t\t" << "s";
+		*outputFile << (i + 2);
+		*outputFile << ": begin" << endl;
+		for (j = 0; j < (int)_states.at(i).getAssignedNodes().size() -1; j++) {
+			 // if (_nodes.at(j)->getFDSTime() == i) {
+				/* ADDITION */ /* SUBTRACTION */
+				/* INCREMENT */ /* DECREMENT */
+				if (_states.at(i).getAssignedNodes().at(j)->getOperation() == "+" ||
+					_states.at(i).getAssignedNodes().at(j)->getOperation() == "-") {
+					*outputFile << "\t\t\t\t\t";
+					*outputFile << _states.at(i).getAssignedNodes().at(j)->getOutputs().at(0)->getName();
+					// *outputFile << _nodes.at(j)->getOutputs().at(0)->getName();
+					*outputFile << " <= ";
+					/* Inc/Dec */
+					if (_states.at(i).getAssignedNodes().at(j)->getInputs().at(1)->getName() == "1") {
+					//if (_nodes.at(j)->getInputs().at(1)->getName() == "1") {
+						*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(0)->getName();
+						// *outputFile << _nodes.at(j)->getInputs().at(0)->getName();
+						*outputFile << " " << _states.at(i).getAssignedNodes().at(j)->getOperation() << _states.at(i).getAssignedNodes().at(j)->getOperation();
+						//*outputFile << " " << _nodes.at(j)->getOperation() << _nodes.at(j)->getOperation();
+						*outputFile << ";" << endl;
+					}
+					/* Not */
+					else {
+						*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(0)->getName();
+						*outputFile << " " << _states.at(i).getAssignedNodes().at(j)->getOperation() << " ";
+						*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(1)->getName();
+						// *outputFile << _nodes.at(j)->getInputs().at(0)->getName();
+						// *outputFile << " " << _nodes.at(j)->getOperation() << " ";
+						// *outputFile << _nodes.at(j)->getInputs().at(1)->getName();
+					}
+					*outputFile << ";" << endl;
+				}
+				/* MULTIPLICATION */
+				/* DIVISION */ /* MODULO */ /* GREATER THAN */
+				/* LESSER THAN */ /* EQUAL TO */ /* SHIFT LEFT */
+				/* SHIFT RIGHT */
+				else if (_states.at(i).getAssignedNodes().at(j)->getOperation() == "*" ||
+					_states.at(i).getAssignedNodes().at(j)->getOperation() == "/" ||
+					_states.at(i).getAssignedNodes().at(j)->getOperation() == ">" ||
+					_states.at(i).getAssignedNodes().at(j)->getOperation() == "<" ||
+					_states.at(i).getAssignedNodes().at(j)->getOperation() == "==" ||
+					_states.at(i).getAssignedNodes().at(j)->getOperation() == ">>" ||
+					_states.at(i).getAssignedNodes().at(j)->getOperation() == "<<") {
+					*outputFile << "\t\t\t\t\t";
+					*outputFile << _states.at(i).getAssignedNodes().at(j)->getOutputs().at(0)->getName();
+					*outputFile << " <= ";
+					*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(0)->getName();
+					*outputFile << " " << _nodes.at(j)->getOperation() << " ";
+					*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(1)->getName();
+					*outputFile << ";" << endl;
+				}
+				/* MULTIPLEXOR */
+				else if (_states.at(i).getAssignedNodes().at(j)->getOperation() == "?") {
+					*outputFile << "\t\t\t\t\t";
+					*outputFile << _states.at(i).getAssignedNodes().at(j)->getOutputs().at(0)->getName();
+					*outputFile << " <= ";
+					*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(0)->getName();
+					*outputFile << " ? ";
+					*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(1)->getName();
+					*outputFile << " : ";
+					*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(2)->getName();
+					*outputFile << ";" << endl;
+				}
+				// TODO TODO TODO!
+				else if (_states.at(i).getAssignedNodes().at(j)->getOperation() == "if") {
+
+				}
+				///* IF STATEMENTS */
+				//else if (_nodes.at(j)->getOperation() == "if") {
+				//	/* If */
+				//	*outputFile << "\t\t\t\t\t";
+				//	*outputFile << "if ( ";
+				//	*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(0)->getName();
+				//	*outputFile << " != 0 )" << endl;
+				//	// *outputFile << _nodes.at(j).getNextIfNodes().at(0)->getFDSTime();
+				//	*outputFile << "\t\t\t\t\t" << "state <= ";
+				//	*outputFile << "s" << k << ";" << endl;
+				//	k++;
+				//	/* Else */
+				//	*outputFile << "\t\t\t\t\t";
+				//	*outputFile << "else" << endl;
+				//}
+				/* This is a problem... Awkward. */
+				else {
+					// There is no defined structure.
+					return false;
+				}
+			// }
+		}
+		if (_nodes.at(j)->getOperation() == "if") {
+			/* Handled above. */
+		}
+		else {
+			*outputFile << "\t\t\t\t\t" << "state <= ";
+			*outputFile << "s" << (i + 3) << ";" << endl;
+		}
+		/*
+		if (_nodes.at(j).getOperation() != "if") {
+		*outputFile << "\t\t\t\t\t" << "state <= ";
+		if (i < (int)_forceDirectedSchedule.size() - 1) {
+		*outputFile << "s" << i + 3 << ";" << endl;
+		}
+		else {
+		*outputFile << "sFinal;" << endl;
+		}
+		*outputFile << "\t\t\t\t" << "end" << endl;
+		}
+		*/
+	}
+
+	/* Write the operations. 
 	k = 3;
 	for (i = 0; i < (int)_forceDirectedSchedule.size(); i++) {
 		*outputFile << "\t\t\t\t" << "s";
@@ -653,20 +773,20 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 		*outputFile << ": begin" << endl;
 		for (j = 0; j < (int)_nodes.size() - 1; j++) {
 			if (_nodes.at(j)->getFDSTime() == i) { // FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX
-				/* ADDITION */ /* SUBTRACTION */
-				/* INCREMENT */ /* DECREMENT */
+				/* ADDITION  /* SUBTRACTION 
+				/* INCREMENT  /* DECREMENT 
 				if (_nodes.at(j)->getOperation() == "+" ||
 					_nodes.at(j)->getOperation() == "-") {
 					*outputFile << "\t\t\t\t\t";
 					*outputFile << _nodes.at(j)->getOutputs().at(0)->getName();
 					*outputFile << " <= ";
-					/* Inc/Dec */
+					/* Inc/Dec 
 					if (_nodes.at(j)->getInputs().at(1)->getName() == "1") {
 						*outputFile << _nodes.at(j)->getInputs().at(0)->getName();
 						*outputFile << " " << _nodes.at(j)->getOperation() << _nodes.at(j)->getOperation();
 						*outputFile << ";" << endl;
 					}
-					/* Not */
+					/* Not 
 					else {
 						*outputFile << _nodes.at(j)->getInputs().at(0)->getName();
 						*outputFile << " " << _nodes.at(j)->getOperation() << " ";
@@ -675,9 +795,9 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 					*outputFile << ";" << endl;
 				}
 				/* MULTIPLICATION */
-				/* DIVISION */ /* MODULO */ /* GREATER THAN */
-				/* LESSER THAN */ /* EQUAL TO */ /* SHIFT LEFT */
-				/* SHIFT RIGHT */
+				/* DIVISION  /* MODULO  /* GREATER THAN 
+				/* LESSER THAN  /* EQUAL TO  /* SHIFT LEFT 
+				/* SHIFT RIGHT 
 				else if (_nodes.at(j)->getOperation() == "*" ||
 					_nodes.at(j)->getOperation() == "/" ||
 					_nodes.at(j)->getOperation() == ">" ||
@@ -693,7 +813,7 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 					*outputFile << _nodes.at(j)->getInputs().at(1)->getName();
 					*outputFile << ";" << endl;
 				}
-				/* MULTIPLEXOR */
+				/* MULTIPLEXOR 
 				else if (_nodes.at(j)->getOperation() == "?") {
 					*outputFile << "\t\t\t\t\t";
 					*outputFile << _nodes.at(j)->getOutputs().at(0)->getName();
@@ -705,9 +825,9 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 					*outputFile << _nodes.at(j)->getInputs().at(2)->getName();
 					*outputFile << ";" << endl;
 				}
-				/* IF STATEMENTS */
+				/* IF STATEMENTS 
 				else if (_nodes.at(j)->getOperation() == "if") {
-					/* If */
+					/* If 
 					*outputFile << "\t\t\t\t\t";
 					*outputFile << "if ( ";
 					*outputFile << _nodes.at(j)->getInputs().at(0)->getName();
@@ -716,11 +836,11 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 					*outputFile << "\t\t\t\t\t" << "state <= ";
 					*outputFile << "s" << k << ";" << endl;
 					k++;
-					/* Else */
+					/* Else 
 					*outputFile << "\t\t\t\t\t";
 					*outputFile << "else" << endl;
 				}
-				/* This is a problem... Awkward. */
+				/* This is a problem... Awkward. 
 				else {
 					// There is no defined structure.
 					return false;
@@ -728,7 +848,7 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 			}
 		}
 		if (_nodes.at(j)->getOperation() == "if") {
-			/* Handled above. */
+			/* Handled above. 
 		}
 		else {
 			*outputFile << "\t\t\t\t\t" << "state <= ";
@@ -746,8 +866,9 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 			}
 			*outputFile << "\t\t\t\t" << "end" << endl;
 		}
-		*/
+		
 	}
+	*/
 	
 	return true;
 
@@ -2057,9 +2178,67 @@ void HLSM::clearAlgothrimVectors()
 	//_alapShcedule.clear();
 }
 
-
+/*	Algorithm which creates the states to print from the FDS. 
+	This Algorithm is necessary because of IF/ELSE statements. */
 void HLSM::createStates()
 {
+	int i = 0;
+	int j = 0;
+	bool ifPresent = false;
+
+	/* Note: Each IF node will create another 2 states necessitated as
+	as they can execute at the same time on an FDS graph but cannot
+	but executed at the same case statement on a verilog code segment. */
+
+	/* Staging for state.
+	This begins with setting the state as the FDS time. */
+	// _states = new vector<Node*>();
+	for (i = 0; i < (int)_nodes.size(); i++) {
+		if (_nodes.at(i)->getFDSTime() == i) {
+			_states.at(i).addAssignedNode(_nodes.at(i)); // FIX FIX FIX!
+		}
+	}
+
+	/* Check for presence of if statements. Saves time/resources. 
+	for (i = 0; i < (int)_nodes.size(); i++) {
+		if (_nodes.at(i)->getOperation().compare("if")) {
+			ifPresent = true;
+		}
+	}
+	/* If not present. 
+	if (!ifPresent) {
+		return;
+	}
+	*/
+
+	/* Find and adjust for presence of if statements. */
+	for (i = 0; i < (int)_nodes.size(); i++) {
+		for (j = 0; j < (int)_states.at(i).getAssignedNodes().size(); j++) {
+			/* Check for an conditional statement within the state. */
+			if (_states.at(i).getAssignedNodes().at(j)->getOperation().compare("if")) {
+				// TODO!
+			}
+		}
+		/*
+		if (_nodes.at(i)->getOperation().compare("if")) {
+			
+		}
+		*/
+
+		/* Does this node have previous nodes? */
+		/*
+		if (_nodes.at(i)->getPreviousNodes.size() != 0) {
+			
+			/*
+			if (_nodes.at(i)->getOperation().compare("if")) {
+				// TODO!
+			}
+			
+		}
+		*/
+
+	}
+
 }
 
 void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
