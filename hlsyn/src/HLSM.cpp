@@ -237,6 +237,8 @@ void HLSM::scheduleGraph(int latency)
 
 		++scheduledNodes;
 	}
+
+	createGraph();
 }
 
 void HLSM::asapSchedule(int latency)
@@ -618,6 +620,7 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 
 	int i = 0;
 	int j = 0;
+	int k = 0;
 
 	/* Make sure it is still open. */
 	if (!(*outputFile).is_open()) {
@@ -639,16 +642,18 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 	// MODULO	Y		N		N
 	// INC		Y		N		N
 	// DEC		Y		N		N
+	// IF		N		N		N
+	// FOR		N		N		N
 	// const std::string validSymbols[13] = { "=","+" ,"-", "*", ">", "<","==", "?", ":", ">>", "<<", "/", "%" };
 
 	/* Write the operations. */
+	k = 3;
 	for (i = 0; i < (int)_forceDirectedSchedule.size(); i++) {
 		*outputFile << "\t\t\t\t" << "s";
 		*outputFile << (i + 2);
 		*outputFile << ": begin" << endl;
-		for (j = 0; j < (int)_nodes.size(); j++) {
-			if (_nodes.at(j).getFDSTime() == i) {
-				// writeOperation(&outputFile, j);
+		for (j = 0; j < (int)_nodes.size() - 1; j++) {
+			if (_nodes.at(j).getFDSTime() == i) { // FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX
 				/* ADDITION */ /* SUBTRACTION */
 				/* INCREMENT */ /* DECREMENT */
 				if (_nodes.at(j).getOperation() == "+" ||
@@ -672,8 +677,8 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 				}
 				/* MULTIPLICATION */
 				/* DIVISION */ /* MODULO */ /* GREATER THAN */
-											/* LESSER THAN */ /* EQUAL TO */ /* SHIFT LEFT */
-																			 /* SHIFT RIGHT */
+				/* LESSER THAN */ /* EQUAL TO */ /* SHIFT LEFT */
+				/* SHIFT RIGHT */
 				else if (_nodes.at(j).getOperation() == "*" ||
 					_nodes.at(j).getOperation() == "/" ||
 					_nodes.at(j).getOperation() == ">" ||
@@ -703,15 +708,18 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 				}
 				/* IF STATEMENTS */
 				else if (_nodes.at(j).getOperation() == "if") {
+					/* If */
 					*outputFile << "\t\t\t\t\t";
 					*outputFile << "if ( ";
 					*outputFile << _nodes.at(j).getInputs().at(0)->getName();
 					*outputFile << " != 0 )" << endl;
-					/* Else Statement Present? */
-					if ((int)_nodes.at(j).getNextNodes().size() != 1) {
-						*outputFile << "\t\t\t\t\t";
-						*outputFile << "else" << endl;
-					}
+					// *outputFile << _nodes.at(j).getNextIfNodes().at(0)->getFDSTime();
+					*outputFile << "\t\t\t\t\t" << "state <= ";
+					*outputFile << "s" << k << ";" << endl;
+					k++;
+					/* Else */
+					*outputFile << "\t\t\t\t\t";
+					*outputFile << "else" << endl;
 				}
 				/* This is a problem... Awkward. */
 				else {
@@ -720,14 +728,26 @@ bool HLSM::writeOperations(std::ofstream *outputFile) {
 				}
 			}
 		}
-		*outputFile << "\t\t\t\t\t" << "state <= ";
-		if (i < (int)_forceDirectedSchedule.size() - 1) {
-			*outputFile << "s" << i + 3 << ";" << endl;
+		if (_nodes.at(j).getOperation() == "if") {
+			/* Handled above. */
 		}
 		else {
-			*outputFile << "sFinal;" << endl;
+			*outputFile << "\t\t\t\t\t" << "state <= ";
+			*outputFile << "s" << k << ";" << endl;
+			k++;
 		}
-		*outputFile << "\t\t\t\t" << "end" << endl;
+		/*
+		if (_nodes.at(j).getOperation() != "if") {
+			*outputFile << "\t\t\t\t\t" << "state <= ";
+			if (i < (int)_forceDirectedSchedule.size() - 1) {
+				*outputFile << "s" << i + 3 << ";" << endl;
+			}
+			else {
+				*outputFile << "sFinal;" << endl;
+			}
+			*outputFile << "\t\t\t\t" << "end" << endl;
+		}
+		*/
 	}
 	
 	return true;
@@ -2038,6 +2058,11 @@ void HLSM::clearAlgothrimVectors()
 	//_alapShcedule.clear();
 }
 
+
+void HLSM::createStates()
+{
+}
+
 void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 {
 	Node* currNode = NULL;
@@ -2111,3 +2136,5 @@ void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 }
 
 
+
+}

@@ -15,8 +15,8 @@ Description: Node Class for hlsyn program
 #include<vector>
 #include<cstring>
 #include<algorithm>
-#include"DataType.h"
 
+#include"DataType.h"
 
 //Delays of type of operation (cycles)
 #define MULT_DELAY 2

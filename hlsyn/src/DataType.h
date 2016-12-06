@@ -13,7 +13,6 @@ Description: DataType class for hlsyn program
 #include<vector>
 #include<cstring>
 #include<algorithm>
-//#include"DatapathComponent.h"
 
 class Node;
 

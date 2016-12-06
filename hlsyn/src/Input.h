@@ -13,6 +13,7 @@ Description: input Class for hlsyn program
 #include<vector>
 #include<cstring>
 #include<algorithm>
+
 #include "DataType.h"
 
 class Input: public DataType{
