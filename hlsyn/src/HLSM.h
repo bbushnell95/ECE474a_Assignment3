@@ -86,6 +86,7 @@ public:
 	bool checkIfComment(std::string checkString);
 	void clearAlgothrimVectors();
 	void ifCheckStringIsIf(std::ifstream *inputFile, std::string checkString);
+	int createNestedIf(std::ifstream *inputFile, std::string checkString);
 	void createStates();
 };
 

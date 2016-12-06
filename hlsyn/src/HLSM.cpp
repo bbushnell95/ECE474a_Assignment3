@@ -2065,6 +2065,7 @@ void HLSM::createStates()
 void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 {
 	Node* currNode = NULL;
+	int nextIfIndex = -1;
 	int currNodeIndex = -1;
 	int inputIndex = -1;
 	int outputIndex = -1;
@@ -2099,7 +2100,8 @@ void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 
 	while (checkString.compare("}")) {
 		if (!checkString.compare("if")) {
-
+			nextIfIndex = createNestedIf(inputFile, checkString);
+			currNode->addNextIfNode(_nodes.at(nextIfIndex));
 		}
 		else if (!checkString.compare("else")) {
 
@@ -2132,4 +2134,79 @@ void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 			}
 		}
 	}
+}
+
+int HLSM::createNestedIf(std::ifstream * inputFile, std::string checkString)
+{
+	Node* currNode = NULL;
+	int nextIfIndex = -1;
+	int currNodeIndex = -1;
+	int inputIndex = -1;
+	int outputIndex = -1;
+	int regIndex = -1;
+
+	createNewNode(checkString, _nodes.size() + 1, vector<DataType*>(), vector<DataType*>());
+	currNode = _nodes.at(_nodes.size() - 1);
+	currNodeIndex = _nodes.size() - 1;
+	currNode->setConditional(true);
+
+	//find what the condition is for the if statment
+	*inputFile >> checkString;
+	*inputFile >> checkString;
+
+	if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
+		return;
+	}
+	else {
+		if (inputIndex != -1) {
+			currNode->addInput(_inputs.at(inputIndex));
+			*inputFile >> checkString;
+			*inputFile >> checkString;
+			*inputFile >> checkString;
+		}
+		else if (regIndex != -1) {
+			currNode->addInput(_variables.at(regIndex));
+			*inputFile >> checkString;
+			*inputFile >> checkString;
+			*inputFile >> checkString;
+		}
+	}
+
+	while (checkString.compare("}")) {
+		if (!checkString.compare("if")) {
+			nextIfIndex = createNestedIf(inputFile, checkString);
+			currNode->addNextIfNode(_nodes.at(nextIfIndex));
+		}
+		else if (!checkString.compare("else")) {
+
+		}
+		else {
+			/* To always have a fresh set of eyes... */
+			outputIndex = -1;
+			inputIndex = -1;
+			regIndex = -1;
+			/* Check where the inputs/outputs/wires are for this datapath component. */
+			if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
+				cout << "Variable '" << checkString << "' not found, please correct Netlist Behavior File." << endl;
+				return;
+			}
+			else {
+				/* Create some datapath components. */
+				getline(*inputFile, checkString);
+				if (outputIndex != -1) {
+					if (!determineOperation(checkString, _outputs.at(outputIndex))) {
+						return;
+					}
+				}
+				else if (regIndex != -1) {
+					if (!determineOperation(checkString, _variables.at(regIndex))) {
+						return;
+					}
+				}
+				_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(currNodeIndex));
+				*inputFile >> checkString;
+			}
+		}
+	}
+	return currNodeIndex;
 }
