@@ -40,7 +40,7 @@ private:
 	std::vector<Input*> _inputs;
 	std::vector<Output*> _outputs;
 	std::vector<Variable*> _variables;
-	std::vector<Node> _nodes;
+	std::vector<Node*> _nodes;
 	std::vector<double> _multDistribution;
 	std::vector<double> _addSubDistribution;
 	std::vector<double> _logicDistribution;
