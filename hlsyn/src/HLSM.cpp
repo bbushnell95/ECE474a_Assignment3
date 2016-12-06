@@ -177,11 +177,11 @@ void HLSM::createUnscheduledGraph()
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
 		//if current node is not a mux
-		if (_nodes.at(i).getOperation().compare("?")) {
-			for (j = 0; j < (int)_nodes.at(i).getOutputs().size(); ++j) {
-				for (k = 0; k < (int)_nodes.at(i).getOutputs().at(j)->getGoingTo().size(); ++k) {
+		if (_nodes.at(i)->getOperation().compare("?")) {
+			for (j = 0; j < (int)_nodes.at(i)->getOutputs().size(); ++j) {
+				for (k = 0; k < (int)_nodes.at(i)->getOutputs().at(j)->getGoingTo().size(); ++k) {
 					//want to see to make sure next node is not a mux, unless current node is a equal to, greater than, or less than node
-					if ((_nodes.at(i).getOutputs().at(j)->getGoingTo().at(k)->getOperation().compare("?"))
+					if ((_nodes.at(i)->getOutputs().at(j)->getGoingTo().at(k)->getOperation().compare("?"))
 						|| (!_nodes.at(i).getOperation().compare("==")
 						|| !_nodes.at(i).getOperation().compare(">")
 						|| !_nodes.at(i).getOperation().compare("<"))) {
