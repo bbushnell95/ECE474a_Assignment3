@@ -2,9 +2,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
-//Date Created: Tue Dec  6 15:53:07 2016
+//Date Created: Tue Dec  6 15:55:00 2016
 //Assignment: 3
-//File: test.v
+//File: test1.v
 //Description: An HLSM module which represents the C-like behavioral description 
 //             into a scheduled high-level statement machine implemented in Verilog.
 //

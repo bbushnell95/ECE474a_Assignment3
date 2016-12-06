@@ -584,7 +584,7 @@ bool HLSM::writeToFile(char* fileName)
 
 	/* Print the state */
 	outputFile << "\t" << "reg[";
-	outputFile << log2(_nodes.size() + 2);
+	outputFile << ceil(log2(_nodes.size() + 2));
 	outputFile << ":0] state;" << endl;
 
 	/* Print the parameters */
@@ -732,7 +732,7 @@ bool HLSM::writeStates(std::ofstream *outputFile) {
 					*outputFile << _states.at(i).getAssignedNodes().at(j)->getOutputs().at(0)->getName();
 					*outputFile << " <= ";
 					*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(0)->getName();
-					*outputFile << " " << _nodes.at(j)->getOperation() << " ";
+					*outputFile << " " << _states.at(i).getAssignedNodes().at(j)->getOperation() << " ";
 					*outputFile << _states.at(i).getAssignedNodes().at(j)->getInputs().at(1)->getName();
 					*outputFile << ";" << endl;
 				}
