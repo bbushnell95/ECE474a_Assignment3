@@ -271,7 +271,7 @@ void HLSM::asapSchedule(int latency)
 			else {
 				//schedule node if allowed cycle is equal to i
 				if (_nodes.at(j)->getCycleAllowed() == i) {
-					_asapSchedule[i].push_back(&(_nodes.at(j)));
+					_asapSchedule[i].push_back(_nodes.at(j));
 					_nodes.at(j)->setAsapTime(i);
 					
 					//update nodes allowed cycle time
@@ -317,7 +317,7 @@ void HLSM::alapSchedule(int latency)
 						}
 					}
 					else {
-						_alapShcedule[i].push_back(&(_nodes.at(j)));
+						_alapShcedule[i].push_back(_nodes.at(j));
 						_nodes.at(j)->setAlapTime(i);
 
 						for (k = 0; k < (int)_nodes.at(j)->getPreviousNodes().size(); ++k) {
