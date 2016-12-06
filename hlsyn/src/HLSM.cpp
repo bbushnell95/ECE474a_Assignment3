@@ -592,25 +592,8 @@ bool HLSM::writeToFile(char* fileName)
 	outputFile << "\t\t\t\t\t\t" << "state <= sWait;" << endl;
 	outputFile << "\t\t\t\t" << "end" << endl;
 
-	/* The actual states */
-	for (i = 0; i < (int)_forceDirectedSchedule.size(); i++) {
-			outputFile << "\t\t\t\t" << "s";
-			outputFile << (i + 2);
-			outputFile << ": begin" << endl;
-			for (j = 0; j < (int)_nodes.size(); j++) {
-					if (_nodes.at(j).getFDSTime() == i) {
-					writeOperation(&outputFile, j);
-				}
-			}
-			outputFile << "\t\t\t\t\t" << "state <= ";
-			if (i < (int)_forceDirectedSchedule.size() - 1) {
-				outputFile << "s" << i + 3 << ";" << endl;
-			}
-			else {
-				outputFile << "sFinal;" << endl;
-			}
-			outputFile << "\t\t\t\t" << "end" << endl;
-	}
+	/* The actual states. */
+	writeOperations(&outputFile);
 
 	/* Final State. */
 	outputFile << "\t\t\t\t" << "sFinal: begin" << endl;
@@ -630,15 +613,18 @@ bool HLSM::writeToFile(char* fileName)
 	return true;
 
 }
-//bool writeOperation(std::ofstream *outputFile, int nodeIndex);
-bool HLSM::writeOperation(std::ofstream *outputFile, int nodeIndex) {
+
+bool HLSM::writeOperations(std::ofstream *outputFile) {
+
+	int i = 0;
+	int j = 0;
 
 	/* Make sure it is still open. */
 	if (!(*outputFile).is_open()) {
 		return false;
 	}
 
-	/* Write the operation. */
+	/* Bookkeeping. */
 	// Funct	If		Print	vTest
 	// ADD		Y		Y		N
 	// SUB		Y		Y		N
@@ -654,75 +640,94 @@ bool HLSM::writeOperation(std::ofstream *outputFile, int nodeIndex) {
 	// INC		Y		N		N
 	// DEC		Y		N		N
 	// const std::string validSymbols[13] = { "=","+" ,"-", "*", ">", "<","==", "?", ":", ">>", "<<", "/", "%" };
-	// _nodes.at(nodeIndex).getOperation();
-	/* ADDITION */ /* SUBTRACTION */
-	/* INCREMENT */ /* DECREMENT */
-	if (_nodes.at(nodeIndex).getOperation() == "+" ||
-		_nodes.at(nodeIndex).getOperation() == "-") {
-		*outputFile << "\t\t\t\t\t";
-		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
-		*outputFile << " <= ";
-		/* Inc/Dec */
-		if (_nodes.at(nodeIndex).getInputs().at(1)->getName() == "1") {
-			*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
-			*outputFile << " " << _nodes.at(nodeIndex).getOperation() << _nodes.at(nodeIndex).getOperation();
-			*outputFile << ";" << endl;
+
+	/* Write the operations. */
+	for (i = 0; i < (int)_forceDirectedSchedule.size(); i++) {
+		*outputFile << "\t\t\t\t" << "s";
+		*outputFile << (i + 2);
+		*outputFile << ": begin" << endl;
+		for (j = 0; j < (int)_nodes.size(); j++) {
+			if (_nodes.at(j).getFDSTime() == i) {
+				// writeOperation(&outputFile, j);
+				/* ADDITION */ /* SUBTRACTION */
+				/* INCREMENT */ /* DECREMENT */
+				if (_nodes.at(j).getOperation() == "+" ||
+					_nodes.at(j).getOperation() == "-") {
+					*outputFile << "\t\t\t\t\t";
+					*outputFile << _nodes.at(j).getOutputs().at(0)->getName();
+					*outputFile << " <= ";
+					/* Inc/Dec */
+					if (_nodes.at(j).getInputs().at(1)->getName() == "1") {
+						*outputFile << _nodes.at(j).getInputs().at(0)->getName();
+						*outputFile << " " << _nodes.at(j).getOperation() << _nodes.at(j).getOperation();
+						*outputFile << ";" << endl;
+					}
+					/* Not */
+					else {
+						*outputFile << _nodes.at(j).getInputs().at(0)->getName();
+						*outputFile << " " << _nodes.at(j).getOperation() << " ";
+						*outputFile << _nodes.at(j).getInputs().at(1)->getName();
+					}
+					*outputFile << ";" << endl;
+				}
+				/* MULTIPLICATION */
+				/* DIVISION */ /* MODULO */ /* GREATER THAN */
+											/* LESSER THAN */ /* EQUAL TO */ /* SHIFT LEFT */
+																			 /* SHIFT RIGHT */
+				else if (_nodes.at(j).getOperation() == "*" ||
+					_nodes.at(j).getOperation() == "/" ||
+					_nodes.at(j).getOperation() == ">" ||
+					_nodes.at(j).getOperation() == "<" ||
+					_nodes.at(j).getOperation() == "==" ||
+					_nodes.at(j).getOperation() == ">>" ||
+					_nodes.at(j).getOperation() == "<<") {
+					*outputFile << "\t\t\t\t\t";
+					*outputFile << _nodes.at(j).getOutputs().at(0)->getName();
+					*outputFile << " <= ";
+					*outputFile << _nodes.at(j).getInputs().at(0)->getName();
+					*outputFile << " " << _nodes.at(j).getOperation() << " ";
+					*outputFile << _nodes.at(j).getInputs().at(1)->getName();
+					*outputFile << ";" << endl;
+				}
+				/* MULTIPLEXOR */
+				else if (_nodes.at(j).getOperation() == "?") {
+					*outputFile << "\t\t\t\t\t";
+					*outputFile << _nodes.at(j).getOutputs().at(0)->getName();
+					*outputFile << " <= ";
+					*outputFile << _nodes.at(j).getInputs().at(0)->getName();
+					*outputFile << " ? ";
+					*outputFile << _nodes.at(j).getInputs().at(1)->getName();
+					*outputFile << " : ";
+					*outputFile << _nodes.at(j).getInputs().at(2)->getName();
+					*outputFile << ";" << endl;
+				}
+				/* IF STATEMENTS */
+				else if (_nodes.at(j).getOperation() == "if") {
+					*outputFile << "\t\t\t\t\t";
+					*outputFile << "if ( ";
+					*outputFile << _nodes.at(j).getInputs().at(0)->getName();
+					*outputFile << " != 0 )" << endl;
+					/* Else Statement Present? */
+					if ((int)_nodes.at(j).getNextNodes().size() != 1) {
+						*outputFile << "\t\t\t\t\t";
+						*outputFile << "else" << endl;
+					}
+				}
+				/* This is a problem... Awkward. */
+				else {
+					// There is no defined structure.
+					return false;
+				}
+			}
 		}
-		/* Not */
+		*outputFile << "\t\t\t\t\t" << "state <= ";
+		if (i < (int)_forceDirectedSchedule.size() - 1) {
+			*outputFile << "s" << i + 3 << ";" << endl;
+		}
 		else {
-			*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
-			*outputFile << " " << _nodes.at(nodeIndex).getOperation() << " ";
-			*outputFile << _nodes.at(nodeIndex).getInputs().at(1)->getName();
+			*outputFile << "sFinal;" << endl;
 		}
-		*outputFile << ";" << endl;
-	}
-	/* MULTIPLICATION */
-	/* DIVISION */ /* MODULO */ /* GREATER THAN */
-	/* LESSER THAN */ /* EQUAL TO */ /* SHIFT LEFT */
-	/* SHIFT RIGHT */
-	else if (_nodes.at(nodeIndex).getOperation() == "*" ||
-		_nodes.at(nodeIndex).getOperation() == "/" ||
-		_nodes.at(nodeIndex).getOperation() == ">" ||
-		_nodes.at(nodeIndex).getOperation() == "<" ||
-		_nodes.at(nodeIndex).getOperation() == "==" ||
-		_nodes.at(nodeIndex).getOperation() == ">>" ||
-		_nodes.at(nodeIndex).getOperation() == "<<") {
-		*outputFile << "\t\t\t\t\t";
-		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
-		*outputFile << " <= ";
-		*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
-		*outputFile << " " << _nodes.at(nodeIndex).getOperation() << " ";
-		*outputFile << _nodes.at(nodeIndex).getInputs().at(1)->getName();
-		*outputFile << ";" << endl;
-	}
-	/* MULTIPLEXOR */
-	else if (_nodes.at(nodeIndex).getOperation() == "?") {
-		*outputFile << "\t\t\t\t\t";
-		*outputFile << _nodes.at(nodeIndex).getOutputs().at(0)->getName();
-		*outputFile << " <= ";
-		*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
-		*outputFile << " ? ";
-		*outputFile << _nodes.at(nodeIndex).getInputs().at(1)->getName();
-		*outputFile << " : ";
-		*outputFile << _nodes.at(nodeIndex).getInputs().at(2)->getName();
-		*outputFile << ";" << endl;
-	}
-	/* IF STATEMENTS */
-	else if (_nodes.at(nodeIndex).getOperation() == "if") {
-		*outputFile << "\t\t\t\t\t";
-		*outputFile << "if ( ";
-		*outputFile << _nodes.at(nodeIndex).getInputs().at(0)->getName();
-		*outputFile << " )" << endl;
-		/* Else Statement Present? */
-		if ((int)_nodes.at(nodeIndex).getNextNodes().size() != 1) {
-			*outputFile << "\t\t\t\t\t";
-			*outputFile << "else" << endl;
-		}
-	}
-	/* This is a problem... Awkward. */
-	else {
-		// There is no defined structure.
-		return false;
+		*outputFile << "\t\t\t\t" << "end" << endl;
 	}
 	
 	return true;
