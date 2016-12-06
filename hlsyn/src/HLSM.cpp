@@ -114,27 +114,32 @@ bool HLSM::readFile(char* fileName)
 			}
 		}
 		else {
-			/* To always have a fresh set of eyes... */
-			componentOutputIndex = -1;
-			componentInputIndex = -1;
-			componentWireIndex = -1;
-			/* Check where the inputs/outputs/wires are for this datapath component. */
-			if (!checkVariable(checkString, &componentOutputIndex, &componentInputIndex, &componentWireIndex)) {
-				cout << "Variable '" << checkString << "' not found, please correct Netlist Behavior File." << endl;
-				inputFile.close();
-				return false;
+			if (!checkString.compare("if")) {
+				ifCheckStringIsIf(&inputFile, checkString);
 			}
 			else {
-				/* Create some datapath components. */
-				getline(inputFile, checkString);
-				if (componentOutputIndex != -1) {
-					if (!determineOperation(checkString, _outputs.at(componentOutputIndex))) {
-						return false;
-					}
+				/* To always have a fresh set of eyes... */
+				componentOutputIndex = -1;
+				componentInputIndex = -1;
+				componentWireIndex = -1;
+				/* Check where the inputs/outputs/wires are for this datapath component. */
+				if (!checkVariable(checkString, &componentOutputIndex, &componentInputIndex, &componentWireIndex)) {
+					cout << "Variable '" << checkString << "' not found, please correct Netlist Behavior File." << endl;
+					inputFile.close();
+					return false;
 				}
-				else if (componentWireIndex != -1) {
-					if (!determineOperation(checkString, _variables.at(componentWireIndex))) {
-						return false;
+				else {
+					/* Create some datapath components. */
+					getline(inputFile, checkString);
+					if (componentOutputIndex != -1) {
+						if (!determineOperation(checkString, _outputs.at(componentOutputIndex))) {
+							return false;
+						}
+					}
+					else if (componentWireIndex != -1) {
+						if (!determineOperation(checkString, _variables.at(componentWireIndex))) {
+							return false;
+						}
 					}
 				}
 			}
@@ -144,19 +149,20 @@ bool HLSM::readFile(char* fileName)
 	}
 	for (i = 0; i < (int)_nodes.size(); ++i) {
 		//_datapathComponents.at(i).determineDataWidth();
-		_nodes.at(i).assignDelay();
+		_nodes.at(i)->assignDelay();
 		//_datapathComponents.at(i).checkIfSigned();
 		//set going to for inputs
-		for (j = 0; j < (int)_nodes.at(i).getInputs().size(); ++j) {
-			(*_nodes.at(i).getInputs().at(j)).addToGoingTo(&_nodes.at(i));
+		for (j = 0; j < (int)_nodes.at(i)->getInputs().size(); ++j) {
+			_nodes.at(i)->getInputs().at(j)->addToGoingTo(_nodes.at(i));
 		}
 		//sets coming from for outputs
-		for (j = 0; j < (int)_nodes.at(i).getOutputs().size(); ++j) {
-			(*_nodes.at(i).getOutputs().at(j)).addToComingFrom(&_nodes.at(i));
+		for (j = 0; j < (int)_nodes.at(i)->getOutputs().size(); ++j) {
+			_nodes.at(i)->getOutputs().at(j)->addToComingFrom(_nodes.at(i));
 		}
 	}
 
 	createUnscheduledGraph();
+	cout << &_nodes[3] << endl;
 
 	inputFile.close();
 	return true;
@@ -170,9 +176,11 @@ void HLSM::createUnscheduledGraph()
 	int k = 0;
 
 	for (i = 0; i < (int)_nodes.size(); ++i) {
+		//if current node is not a mux
 		if (_nodes.at(i).getOperation().compare("?")) {
 			for (j = 0; j < (int)_nodes.at(i).getOutputs().size(); ++j) {
 				for (k = 0; k < (int)_nodes.at(i).getOutputs().at(j)->getGoingTo().size(); ++k) {
+					//want to see to make sure next node is not a mux, unless current node is a equal to, greater than, or less than node
 					if ((_nodes.at(i).getOutputs().at(j)->getGoingTo().at(k)->getOperation().compare("?"))
 						|| (!_nodes.at(i).getOperation().compare("==")
 						|| !_nodes.at(i).getOperation().compare(">")
@@ -188,8 +196,10 @@ void HLSM::createUnscheduledGraph()
 			}
 		}
 		else {
-			_nodes.at(i).setNextNodes(_nodes.at(i).getOutputs().at(0)->getGoingTo());
-			_nodes.at(i).setPreviousNodes(_nodes.at(i).getInputs().at(0)->getComingFrom());
+			if (!_nodes.at(i).getConditional()) {
+				_nodes.at(i).setNextNodes(_nodes.at(i).getOutputs().at(0)->getGoingTo());
+				_nodes.at(i).setPreviousNodes(_nodes.at(i).getInputs().at(0)->getComingFrom());
+			}
 		}
 	}
 }
@@ -2048,7 +2058,83 @@ void HLSM::clearAlgothrimVectors()
 	//_alapShcedule.clear();
 }
 
-void createStates()
+
+void HLSM::createStates()
 {
+}
+
+void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
+{
+	Node* currNode = NULL;
+	int currNodeIndex = -1;
+	int inputIndex = -1;
+	int outputIndex = -1;
+	int regIndex = -1;
+	
+	createNewNode(checkString, _nodes.size() + 1, vector<DataType*>(), vector<DataType*>());
+	currNode = &_nodes.at(_nodes.size() - 1);
+	currNodeIndex = _nodes.size() - 1;
+	currNode->setConditional(true);
+
+	//find what the condition is for the if statment
+	*inputFile >> checkString;
+	*inputFile >> checkString;
+
+	if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
+		return;
+	}
+	else {
+		if (inputIndex != -1) {
+			currNode->addInput(_inputs.at(inputIndex));
+			*inputFile >> checkString;
+			*inputFile >> checkString;
+			*inputFile >> checkString;
+		}
+		else if (regIndex != -1) {
+			currNode->addInput(_variables.at(regIndex));
+			*inputFile >> checkString;
+			*inputFile >> checkString;
+			*inputFile >> checkString;
+		}
+	}
+
+	while (checkString.compare("}")) {
+		if (!checkString.compare("if")) {
+
+		}
+		else if (!checkString.compare("else")) {
+
+		}
+		else {
+			/* To always have a fresh set of eyes... */
+			outputIndex = -1;
+			inputIndex = -1;
+			regIndex = -1;
+			/* Check where the inputs/outputs/wires are for this datapath component. */
+			if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
+				cout << "Variable '" << checkString << "' not found, please correct Netlist Behavior File." << endl;
+				return;
+			}
+			else {
+				/* Create some datapath components. */
+				getline(*inputFile, checkString);
+				if (outputIndex != -1) {
+					if (!determineOperation(checkString, _outputs.at(outputIndex))) {
+						return;
+					}
+				}
+				else if (regIndex != -1) {
+					if (!determineOperation(checkString, _variables.at(regIndex))) {
+						return;
+					}
+				}
+				_nodes.at(_nodes.size() - 1).addPreviousNode(&_nodes.at(currNodeIndex));
+				*inputFile >> checkString;
+			}
+		}
+	}
+}
+
+
 
 }
