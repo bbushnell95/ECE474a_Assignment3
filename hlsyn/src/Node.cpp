@@ -413,6 +413,43 @@ void Node::calculateSuccessorForce(std::vector<double> multDistribution, std::ve
 				}
 				_sucessorForce[i] += currTempAssigned;
 			}
+			for (j = 0; j < (int)_nextIfNodes.size(); ++j) {
+				currTempAssigned = 0.0;
+				/* Does ALAP hit ASAP? No...? */
+				if (i < _nextIfNodes.at(j)->getAsapTime()) {
+					currTempAssigned += 0;
+				}
+				/* Yes...? */
+				else {
+					for (k = 0; k < (int)_operationProbability.size(); ++k) {
+						if (k >= _nextIfNodes.at(j)->getAsapTime() && k <= _nextIfNodes.at(j)->getAlapTime()) {
+							if (k > i) {
+								/* Determine the resource type of the next node. */
+								if (_nextIfNodes.at(j)->getOperation() == "*") {
+									currNextNodeTypeDist = multDistribution;
+								}
+								else if (_nextIfNodes.at(j)->getOperation() == "+" || _nextIfNodes.at(j)->getOperation() == "-") {
+									currNextNodeTypeDist = addSubDistribution;
+								}
+								else if (_nextIfNodes.at(j)->getOperation() == "/" || _nextIfNodes.at(j)->getOperation() == "%") {
+									currNextNodeTypeDist = modDivDistribution;
+								}
+								else {
+									currNextNodeTypeDist = logicDistribution;
+								}
+								/* Calculate the successor force at the time specified. */
+								currTempAssigned += currNextNodeTypeDist.at(k) * (1 - _nextIfNodes.at(j)->getOperationProbability().at(k));
+								for (m = (int)_nextIfNodes.at(j)->getAsapTime(); m <= (int)_nextIfNodes.at(j)->getAlapTime(); ++m) {
+									if (m > i && m != k) {
+										currTempAssigned = currTempAssigned + currNextNodeTypeDist.at(m) * (0 - _nextIfNodes.at(j)->getOperationProbability().at(m));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			_sucessorForce[i] += currTempAssigned;
 		}
 	}
 }
