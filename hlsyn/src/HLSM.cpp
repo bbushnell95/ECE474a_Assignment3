@@ -2102,8 +2102,34 @@ void HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 		if (!checkString.compare("if")) {
 			nextIfIndex = createNestedIf(inputFile, checkString);
 			currNode->addNextIfNode(_nodes.at(nextIfIndex));
+			_nodes[nextIfIndex]->addPreviousNode(currNode);
 		}
 		else if (!checkString.compare("else")) {
+			/* To always have a fresh set of eyes... */
+			outputIndex = -1;
+			inputIndex = -1;
+			regIndex = -1;
+			/* Check where the inputs/outputs/wires are for this datapath component. */
+			if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
+				cout << "Variable '" << checkString << "' not found, please correct Netlist Behavior File." << endl;
+				return;
+			}
+			else {
+				/* Create some datapath components. */
+				getline(*inputFile, checkString);
+				if (outputIndex != -1) {
+					if (!determineOperation(checkString, _outputs.at(outputIndex))) {
+						return;
+					}
+				}
+				else if (regIndex != -1) {
+					if (!determineOperation(checkString, _variables.at(regIndex))) {
+						return;
+					}
+				}
+				_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(currNodeIndex));
+				*inputFile >> checkString;
+			}
 
 		}
 		else {
@@ -2155,7 +2181,7 @@ int HLSM::createNestedIf(std::ifstream * inputFile, std::string checkString)
 	*inputFile >> checkString;
 
 	if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
-		return;
+		return -1;
 	}
 	else {
 		if (inputIndex != -1) {
@@ -2176,9 +2202,44 @@ int HLSM::createNestedIf(std::ifstream * inputFile, std::string checkString)
 		if (!checkString.compare("if")) {
 			nextIfIndex = createNestedIf(inputFile, checkString);
 			currNode->addNextIfNode(_nodes.at(nextIfIndex));
+			*inputFile >> checkString;
 		}
 		else if (!checkString.compare("else")) {
+			*inputFile >> checkString;
+			*inputFile >> checkString;
 
+			if (!checkString.compare("if")) {
+				nextIfIndex = createNestedIf(inputFile, checkString);
+				currNode->addNextIfNode(_nodes.at(nextIfIndex));
+				_nodes[nextIfIndex]->addPreviousNode(currNode);
+			}
+			else {
+				/* To always have a fresh set of eyes... */
+				outputIndex = -1;
+				inputIndex = -1;
+				regIndex = -1;
+				/* Check where the inputs/outputs/wires are for this datapath component. */
+				if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
+					cout << "Variable '" << checkString << "' not found, please correct Netlist Behavior File." << endl;
+					return -1;
+				}
+				else {
+					/* Create some datapath components. */
+					getline(*inputFile, checkString);
+					if (outputIndex != -1) {
+						if (!determineOperation(checkString, _outputs.at(outputIndex))) {
+							return -1;
+						}
+					}
+					else if (regIndex != -1) {
+						if (!determineOperation(checkString, _variables.at(regIndex))) {
+							return -1;
+						}
+					}
+					_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(currNodeIndex));
+					*inputFile >> checkString;
+				}
+			}
 		}
 		else {
 			/* To always have a fresh set of eyes... */
@@ -2188,19 +2249,19 @@ int HLSM::createNestedIf(std::ifstream * inputFile, std::string checkString)
 			/* Check where the inputs/outputs/wires are for this datapath component. */
 			if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
 				cout << "Variable '" << checkString << "' not found, please correct Netlist Behavior File." << endl;
-				return;
+				return -1;
 			}
 			else {
 				/* Create some datapath components. */
 				getline(*inputFile, checkString);
 				if (outputIndex != -1) {
 					if (!determineOperation(checkString, _outputs.at(outputIndex))) {
-						return;
+						return -1;
 					}
 				}
 				else if (regIndex != -1) {
 					if (!determineOperation(checkString, _variables.at(regIndex))) {
-						return;
+						return -1;
 					}
 				}
 				_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(currNodeIndex));
