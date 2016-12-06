@@ -13,8 +13,8 @@ Description: Output Class for hlsyn program
 #include<vector>
 #include<cstring>
 #include<algorithm>
-#include "DataType.h"
 
+#include "DataType.h"
 
 class Output: public DataType {
 

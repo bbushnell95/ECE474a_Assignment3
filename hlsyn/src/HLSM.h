@@ -23,7 +23,7 @@ Description: HLSM Class for hlsyn program
 #include "Output.h"
 #include "Variable.h"
 #include "Node.h"
-
+#include "State.h"
 
 #define DATAWIDTH_1 1
 #define DATAWIDTH_2 2
@@ -31,7 +31,6 @@ Description: HLSM Class for hlsyn program
 #define DATAWIDTH_16 16 
 #define DATAWIDTH_32 32
 #define DATAWIDTH_64 64
-
 
 class HLSM {
 
@@ -48,12 +47,11 @@ private:
 	std::vector<std::vector< Node*> > _asapSchedule;
 	std::vector<std::vector< Node*> > _alapShcedule;
 	std::vector<std::vector< Node*> > _forceDirectedSchedule;
+	std::vector<State> _states;
 	
-
 public:
 	/*Constructors*/
 	HLSM();
-
 
 	/*Methods*/
 	bool readFile(char* fileName);
@@ -88,6 +86,7 @@ public:
 	bool checkIfComment(std::string checkString);
 	void clearAlgothrimVectors();
 	void ifCheckStringIsIf(std::ifstream *inputFile, std::string checkString);
+	void createStates();
 };
 
 #endif // HLSM_H
