@@ -253,7 +253,9 @@ bool HLSM::scheduleGraph(int latency)
 	if (_asapSchedule.size() > latency) {
 		return false;
 	}
-	alapSchedule(latency);
+	if (!alapSchedule(latency)) {
+		return false;
+	}
 
 	/* Schedules all nodes. */
 	while (scheduledNodes < (int)_nodes.size()) {
@@ -346,7 +348,7 @@ void HLSM::asapSchedule(int latency)
 }
 
 //NOTE: this assigns the correct time cycle, however if you look at the alap shcedule variable, there is 1 too many nodes. will fix later, but have all info I need
-void HLSM::alapSchedule(int latency)
+bool HLSM::alapSchedule(int latency)
 {
 	int i = 0;
 	int j = 0;
@@ -415,6 +417,12 @@ void HLSM::alapSchedule(int latency)
 			}
 		}
 	}
+	for (i = 0; i < (int)_nodes.size(); ++i) {
+		if (_nodes.at(i)->getCycleAllowed() < 0) {
+			return false;
+		}
+	}
+	return true;
 }
 
 void HLSM::calculateOperationProbability(int latency)

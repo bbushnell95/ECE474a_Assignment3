@@ -59,7 +59,7 @@ public:
 	void createUnscheduledGraph();
 	bool scheduleGraph(int latency);
 	void asapSchedule(int latency);
-	void alapSchedule(int latency);
+	bool alapSchedule(int latency);
 	void calculateOperationProbability(int latency);
 	void calculateTypeDistributionProbability(int latency);
 	void calculateNodeSelfForces();
