@@ -2,7 +2,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
-//Date Created: Wed Dec  7 02:10:33 2016
+//Date Created: Wed Dec  7 02:25:03 2016
 //Assignment: 3
 //File: test.v
 //Description: An HLSM module which represents the C-like behavioral description 
@@ -10,15 +10,15 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module HLSM(Clk, Rst, Start, Done, a, b, c, d, e, f, g, h, sa, avg);
+module HLSM(Clk, Rst, Start, Done, x0, x1, x2, x3, y0, c0, five, ten, d1, d2, e, f, g, h);
 	input Clk, Rst, Start;
 	output reg Done;
 
-	input [31:0] a, b, c, d, e, f, g, h, sa;
+	input signed [31:0] x0, x1, x2, x3, y0, c0, five, ten;
 
-	output [31:0] avg;
+	output signed [31:0] d1, d2, e, f, g, h;
 
-	reg [31:0] t1, t2, t3, t4, t5, t6, t7, t7div2, t7div4;
+	reg signed [31:0] t1, t2, t3, vd1, ve, vf, vg;
 
 	reg[4:0] state;
 	parameter sWait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, s7 = 6, s8 = 7, s9 = 8, s10 = 9, s11 = 10, sFinal = 11;
@@ -29,13 +29,16 @@ module HLSM(Clk, Rst, Start, Done, a, b, c, d, e, f, g, h, sa, avg);
 			t1 <= 0;
 			t2 <= 0;
 			t3 <= 0;
-			t4 <= 0;
-			t5 <= 0;
-			t6 <= 0;
-			t7 <= 0;
-			t7div2 <= 0;
-			t7div4 <= 0;
-			avg <= 0;
+			vd1 <= 0;
+			ve <= 0;
+			vf <= 0;
+			vg <= 0;
+			d1 <= 0;
+			d2 <= 0;
+			e <= 0;
+			f <= 0;
+			g <= 0;
+			h <= 0;
 			Done <= 0;
 		end
 		else begin
@@ -48,34 +51,37 @@ module HLSM(Clk, Rst, Start, Done, a, b, c, d, e, f, g, h, sa, avg);
 						state <= sWait;
 				end
 				s2: begin
-					t1 <= a + b;
+					t2 <= x1 + x2;
 					state <= s3;
 				s3: begin
-					t2 <= t1 + c;
+					ve <= t2 * t3;
+					vg <= x0 - ten;
 					state <= s4;
 				s4: begin
-					t3 <= t2 + d;
+					vd1 <= t1 * c0;
 					state <= s5;
 				s5: begin
-					t4 <= t3 + e;
+					vf <= ve * y0;
 					state <= s6;
 				s6: begin
-					t5 <= t4 + f;
+					d1 <= t1 * c0;
+					t3 <= x3 + c0;
 					state <= s7;
 				s7: begin
-					t6 <= t5 + g;
+					t1 <= x0 + x1;
+					e <= t2 * t3;
 					state <= s8;
 				s8: begin
-					t7 <= t6 + h;
+					f <= ve * y0;
 					state <= s9;
 				s9: begin
-					t7div2 <= t7 >> sa;
+					d2 <= vd1 * five;
 					state <= s10;
 				s10: begin
-					t7div4 <= t7div2 >> sa;
+					h <= vf + vg;
 					state <= s11;
 				s11: begin
-					avg <= t7div4 >> sa;
+					g <= x0 - ten;
 					state <= sFinal;
 				sFinal: begin
 					Done <= 1;
