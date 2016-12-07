@@ -13,6 +13,11 @@ HLSM::HLSM() {
 
 }
 
+int HLSM::asapScheduleSize()
+{
+	return _asapSchedule.size();
+}
+
 bool HLSM::readFile(char* fileName)
 {
 	ifstream inputFile;
@@ -274,20 +279,27 @@ void HLSM::asapSchedule(int latency)
 	int i = 0;
 	int j = 0;
 	int k = 0;
+	int m = 0;
+	int scheduledNodes = 0;
+	bool unscheduledPreviousNode = false;
 
 	//create empty vectors in vector of vectors
-	for (i = 0; i < latency; ++i) {
-		_asapSchedule.push_back(vector<Node*>());
-	}
+	//for (i = 0; i < latency; ++i) {
+	//	_asapSchedule.push_back(vector<Node*>());
+	//}
 	//go through each time cycle
-	for (i = 0; i < latency; ++i) {
+	while(scheduledNodes < _nodes.size()){//for (i = 0; i < latency; ++i) {
 		//go through each unscheduled node
+		_asapSchedule.push_back(vector<Node*>());
+		
 		for (j = 0; j < (int)_nodes.size(); ++j) {
+			unscheduledPreviousNode = false;
 			if (i == 0) {
 				//if there are no previous nodes, current node goes into time 1 for asap
 				if (_nodes.at(j)->getPreviousNodes().size() == 0) {
 					_asapSchedule[i].push_back(_nodes.at(j));
 					_nodes.at(j)->setAsapTime(i);
+					++scheduledNodes;
 					
 					//Need to account for the delay if there is one
 					for (k = 0; k < (int)_nodes.at(j)->getNextNodes().size(); ++k) {
@@ -299,19 +311,37 @@ void HLSM::asapSchedule(int latency)
 			}
 			else {
 				//schedule node if allowed cycle is equal to i
-				if (_nodes.at(j)->getCycleAllowed() == i) {
+				for (m = 0; m < _nodes.at(j)->getPreviousNodes().size(); ++m) {
+					if (_nodes.at(j)->getPreviousNodes().at(m)->getAsapTime() == -1) {
+						unscheduledPreviousNode = true;
+					}
+				}
+				if (_nodes.at(j)->getCycleAllowed() == i && !unscheduledPreviousNode) {
 					_asapSchedule[i].push_back(_nodes.at(j));
 					_nodes.at(j)->setAsapTime(i);
-					
+					++scheduledNodes;
 					//update nodes allowed cycle time
 					for (k = 0; k < (int)_nodes.at(j)->getNextNodes().size(); ++k) {
 						if (i + _nodes.at(j)->getDelay() > _nodes.at(j)->getNextNodes().at(k)->getCycleAllowed()) {
 							_nodes.at(j)->getNextNodes().at(k)->setCycleAllowed(i + _nodes.at(j)->getDelay());
 						}
 					}
+					if (_nodes.at(j)->getConditional()) {
+						for (k = 0; k < (int)_nodes.at(j)->getNextIfNodes().size(); ++k) {
+							if (i + _nodes.at(j)->getDelay() > _nodes.at(j)->getNextIfNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j)->getNextIfNodes().at(k)->setCycleAllowed(i + _nodes.at(j)->getDelay());
+							}
+						}
+						for (k = 0; k < (int)_nodes.at(j)->getNextElseNodes().size(); ++k) {
+							if (i + _nodes.at(j)->getDelay() > _nodes.at(j)->getNextElseNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j)->getNextElseNodes().at(k)->setCycleAllowed(i + _nodes.at(j)->getDelay());
+							}
+						}
+					}
 				}
 			}
 		}
+		++i;
 	}
 }
 
@@ -583,7 +613,7 @@ bool HLSM::writeToFile(char* fileName)
 
 	/* Print the state */
 	outputFile << "\t" << "reg[";
-	outputFile << ceil(log2(_nodes.size() + 2));
+	outputFile << ceil(log2(_states.size() + 2));
 	outputFile << ":0] state;" << endl;
 
 	/* Print the parameters */
@@ -591,7 +621,7 @@ bool HLSM::writeToFile(char* fileName)
 	outputFile << "sWait = 0,";
 
 	/* Print out all parameters (nodes, really) */
-	for (i = 0; i < (int)_nodes.size() - 1; i++) {
+	for (i = 0; i < (int)_states.size(); i++) {
 		outputFile << " s" << i + 2 << " = " << i + 1 << ",";
 	}
 	outputFile << " sFinal = " << i + 1 << ";" << endl << endl;
@@ -2170,6 +2200,7 @@ int HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 			nextIfIndex = createNestedIf(inputFile, checkString);
 			currNode->addNextIfNode(_nodes.at(nextIfIndex));
 			_nodes[nextIfIndex]->addPreviousNode(currNode);
+			*inputFile >> checkString;
 		}
 		else if (!checkString.compare("else")) {
 			/* To always have a fresh set of eyes... */
@@ -2194,7 +2225,8 @@ int HLSM::ifCheckStringIsIf(std::ifstream * inputFile, std::string checkString)
 						return -1;
 					}
 				}
-				_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(currNodeIndex));
+				_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(nextIfIndex));
+				_nodes[nextIfIndex]->addNextElseNode(_nodes.at(_nodes.size() - 1));
 				*inputFile >> checkString;
 			}
 
@@ -2277,38 +2309,33 @@ int HLSM::createNestedIf(std::ifstream * inputFile, std::string checkString)
 			*inputFile >> checkString;
 			*inputFile >> checkString;
 
-			if (!checkString.compare("if")) {
-				nextIfIndex = createNestedIf(inputFile, checkString);
-				currNode->addNextIfNode(_nodes.at(nextIfIndex));
-				_nodes[nextIfIndex]->addPreviousNode(currNode);
+			/* To always have a fresh set of eyes... */
+			outputIndex = -1;
+			inputIndex = -1;
+			regIndex = -1;
+			/* Check where the inputs/outputs/wires are for this datapath component. */
+			if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
+				cout << "Variable '" << checkString << "' not found, please correct Netlist Behavior File." << endl;
+				return -1;
 			}
 			else {
-				/* To always have a fresh set of eyes... */
-				outputIndex = -1;
-				inputIndex = -1;
-				regIndex = -1;
-				/* Check where the inputs/outputs/wires are for this datapath component. */
-				if (!checkVariable(checkString, &outputIndex, &inputIndex, &regIndex)) {
-					cout << "Variable '" << checkString << "' not found, please correct Netlist Behavior File." << endl;
-					return -1;
-				}
-				else {
-					/* Create some datapath components. */
-					getline(*inputFile, checkString);
-					if (outputIndex != -1) {
-						if (!determineOperation(checkString, _outputs.at(outputIndex))) {
-							return -1;
-						}
+				/* Create some datapath components. */
+				getline(*inputFile, checkString);
+				if (outputIndex != -1) {
+					if (!determineOperation(checkString, _outputs.at(outputIndex))) {
+						return -1;
 					}
-					else if (regIndex != -1) {
-						if (!determineOperation(checkString, _variables.at(regIndex))) {
-							return -1;
-						}
-					}
-					_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(currNodeIndex));
-					*inputFile >> checkString;
 				}
+				else if (regIndex != -1) {
+					if (!determineOperation(checkString, _variables.at(regIndex))) {
+						return -1;
+					}
+				}
+				_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(nextIfIndex));
+				_nodes[nextIfIndex]->addNextElseNode(_nodes.at(_nodes.size() - 1));
+				*inputFile >> checkString;
 			}
+
 		}
 		else {
 			/* To always have a fresh set of eyes... */
@@ -2334,8 +2361,10 @@ int HLSM::createNestedIf(std::ifstream * inputFile, std::string checkString)
 					}
 				}
 				_nodes.at(_nodes.size() - 1)->addPreviousNode(_nodes.at(currNodeIndex));
+				currNode->addNextIfNode(_nodes.at(_nodes.size() - 1));
 				*inputFile >> checkString;
 			}
 		}
 	}
+	return currNodeIndex;
 }

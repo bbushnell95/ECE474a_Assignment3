@@ -54,6 +54,7 @@ public:
 	HLSM();
 
 	/*Methods*/
+	int asapScheduleSize();
 	bool readFile(char* fileName);
 	void createUnscheduledGraph();
 	bool scheduleGraph(int latency);

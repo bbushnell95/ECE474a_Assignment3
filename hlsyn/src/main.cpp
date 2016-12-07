@@ -38,7 +38,8 @@ int main(int argc, char *argv[])
 	/* Create the scheduled graph. */
 	if (!newHLSM.scheduleGraph(atoi(argv[2]))) {
 		cout << endl;
-		cout << "Can not schedule operations with given latency" << endl;
+		cout << "Can not schedule operations with latency of " << argv[2] << "." << endl;
+		cout << "Minimum latency for this circuit is " << newHLSM.asapScheduleSize(); 
 		cout << endl << endl;
 		return EXIT_FAILURE;
 	}

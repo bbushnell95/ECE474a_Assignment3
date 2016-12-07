@@ -14,8 +14,8 @@ Node::Node()
 	delay = 0;
 	visited = 'w';
 	cycleAllowed = 0;
-	asapTime = 0;
-	alapTime = 0;
+	asapTime = -1;
+	alapTime = -1;
 	scheduled = false;
 	conditional = false;
 }
@@ -29,8 +29,8 @@ Node::Node(std::string n, int num, std::vector<DataType*> _inputs, std::vector<D
 	visited = 'w';
 	delay = 0;
 	cycleAllowed = 0;
-	asapTime = 0;
-	alapTime = 0;
+	asapTime = -1;
+	alapTime = -1;
 	scheduled = false;
 	conditional = false;
 }
