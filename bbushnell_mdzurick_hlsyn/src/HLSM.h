@@ -90,6 +90,7 @@ public:
 	int createNestedIf(std::ifstream *inputFile, std::string checkString);
 	void createStates();
 	void createNewState();
+	bool checkLatency(int latency);
 };
 
 #endif // HLSM_H

@@ -24,8 +24,6 @@ if(MSVC)
 
     
 	set( CMAKE_CXX_FLAGS "-W4" )
-	
-	set( CMAKE_CXX_FLAGS "-std=c++11")
     
 	set(CMAKE_DEBUG_POSTFIX "d")
     
