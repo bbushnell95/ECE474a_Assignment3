@@ -248,6 +248,10 @@ bool HLSM::scheduleGraph(int latency)
 		_forceDirectedSchedule.push_back(vector<Node*>());
 	}
 
+	if (!checkLatency(latency)) {
+		return false;
+	}
+
 	/* Does ASAP/ALAP Scheduling both are req'd for FDS. */
 	asapSchedule(latency);
 	if (_asapSchedule.size() > latency) {
@@ -2384,4 +2388,41 @@ int HLSM::createNestedIf(std::ifstream * inputFile, std::string checkString)
 		}
 	}
 	return currNodeIndex;
+}
+
+bool HLSM::checkLatency(int latency) {
+	bool mult = false;
+	bool div = false;
+	bool other = false;
+	int i = 0;
+
+	for (i = 0; i < (int)_nodes.size(); i++) {
+		if (_nodes.at(i)->getOperation() == "*") {
+			mult = true;
+		}
+		else if (_nodes.at(i)->getOperation() == "/") {
+			div = true;
+		}
+		else {
+			other = true;
+		}
+	}
+
+	if (div) {
+		if (latency < 3) {
+			return false;
+		}
+	}
+	if (mult) {
+		if (latency < 2) {
+			return false;
+		}
+	}
+	if (other) {
+		if (latency < 1) {
+			return false;
+		}
+	}
+
+
 }
