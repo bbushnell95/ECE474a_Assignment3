@@ -71,9 +71,9 @@ public:
 	std::vector<Node*> getNextNodes();
 	void setNextNodes(std::vector<Node*> nN);
 	std::vector<Node*> getNextIfNodes();
-	std::vector<Node*> setNextIfNodes();
+	void setNextIfNodes(std::vector<Node*> nIN);
 	std::vector<Node*> getNextElseNodes();
-	std::vector<Node*> setNextElseNodes();
+	void setNextElseNodes(std::vector<Node*> nEN);
 	std::vector<double> getOperationProbability();
 	void setOperationProbability(std::vector<double> oP);
 	std::vector<double> getTotalForces();

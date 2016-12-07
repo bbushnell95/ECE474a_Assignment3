@@ -155,10 +155,7 @@ bool HLSM::readFile(char* fileName)
 							return false;
 						}
 					}
-					if (flagIf && !elseFlag) {
-						_nodes[ifNodeIndex]->addNextNode(_nodes.at(_nodes.size() - 1));
-					}
-					else if (flagIf && elseFlag) {
+					if (flagIf && elseFlag) {
 						_nodes[ifNodeIndex]->addNextElseNode(_nodes.at(_nodes.size() - 1));
 					}
 				}
@@ -211,7 +208,9 @@ void HLSM::createUnscheduledGraph()
 			}
 			for (j = 0; j < (int)_nodes.at(i)->getInputs().size(); ++j) {
 				if (_nodes.at(i)->getInputs().at(j)->getComingFrom().size() != 0) {
-					_nodes.at(i)->addPreviousNode(_nodes.at(i)->getInputs().at(j)->getComingFrom().at(0));
+					for (k = 0; k < _nodes.at(i)->getInputs().at(j)->getComingFrom().size(); ++k) {
+						_nodes.at(i)->addPreviousNode(_nodes.at(i)->getInputs().at(j)->getComingFrom().at(k));
+					}
 				}
 			}
 		}
@@ -335,7 +334,7 @@ void HLSM::alapSchedule(int latency)
 	for (i = latency - 1; i >= 0; --i) {
 		for (j = 0; j < (int)_nodes.size(); ++j) {
 			if (i == latency - 1) {
-				if (_nodes.at(j)->getNextNodes().size() == 0) {
+				if (_nodes.at(j)->getNextNodes().size() == 0 && _nodes.at(j)->getNextIfNodes().size() == 0 ){//&& _nodes.at(j)->getNextIfNodes().size() == 0 && _nodes.at(j)->getNextElseNodes().size() == 0) {
 					if (_nodes.at(j)->getDelay() > 1) {
 						_alapShcedule[i - _nodes.at(j)->getDelay()].push_back(_nodes.at(j));
 						_nodes.at(j)->setAlapTime(i - _nodes.at(j)->getDelay());

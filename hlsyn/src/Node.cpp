@@ -95,6 +95,27 @@ void Node::setNextNodes(std::vector<Node*> nN)
 	_nextNodes = nN;
 }
 
+std::vector<Node*> Node::getNextIfNodes()
+{
+	return _nextIfNodes;
+}
+
+void Node::setNextIfNodes(std::vector<Node*> nIN)
+{
+	_nextIfNodes = nIN;
+}
+
+std::vector<Node*> Node::getNextElseNodes()
+{
+	return _nextElseNodes;
+}
+
+void Node::setNextElseNodes(std::vector<Node*> nEN)
+{
+	_nextElseNodes = nEN;
+}
+
+
 std::vector<double> Node::getOperationProbability()
 {
 	return _operationProbability;
