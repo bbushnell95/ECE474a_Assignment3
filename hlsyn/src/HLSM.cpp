@@ -809,18 +809,7 @@ bool HLSM::writeStates(std::ofstream *outputFile) {
 
 			*outputFile << "sFinal;" << endl;
 		}
-		/*
-		if (_nodes.at(j).getOperation() != "if") {
-		*outputFile << "\t\t\t\t\t" << "state <= ";
-		if (i < (int)_forceDirectedSchedule.size() - 1) {
-		*outputFile << "s" << i + 3 << ";" << endl;
-		}
-		else {
-		*outputFile << "sFinal;" << endl;
-		}
 		*outputFile << "\t\t\t\t" << "end" << endl;
-		}
-		*/
 	}
 	return true;
 
@@ -1574,7 +1563,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	/* Check for each datawidth. */
 	if (ind1) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_1) {
@@ -1590,7 +1579,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind1) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_1) {
@@ -1606,7 +1595,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind2) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_2) {
@@ -1625,7 +1614,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind2) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_2) {
@@ -1644,7 +1633,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind8) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_8) {
@@ -1663,7 +1652,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind8) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_8) {
@@ -1682,7 +1671,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind16) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_16) {
@@ -1701,7 +1690,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind16) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_16) {
@@ -1720,7 +1709,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind32) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_32) {
@@ -1739,7 +1728,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind32) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_32) {
@@ -1758,7 +1747,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind64) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_64) {
@@ -1777,7 +1766,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind64) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_64) {

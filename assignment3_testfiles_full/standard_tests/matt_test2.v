@@ -2,7 +2,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
-//Date Created: Wed Dec  7 02:08:26 2016
+//Date Created: Wed Dec  7 03:45:17 2016
 //Assignment: 3
 //File: matt_test2.v
 //Description: An HLSM module which represents the C-like behavioral description 
@@ -14,15 +14,15 @@ module HLSM(Clk, Rst, Start, Done, a, b, c, z, x);
 	input Clk, Rst, Start;
 	output reg Done;
 
-	input signed [31:0] a, b, c;
+	input [15:0] a, b, c;
 
-	output signed [31:0] z, x;
+	output reg [7:0] z;
+	output reg [15:0] x;
 
-	reg dLTe, dEQe;
-	reg signed [31:0] d, e, f, g, h;
+	reg [7:0] d, e, f, g;
 
-	reg[4:0] state;
-	parameter sWait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, s7 = 6, s8 = 7, s9 = 8, sFinal = 9;
+	reg[3:0] state;
+	parameter sWait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, sFinal = 6;
 
 	always@(posedge Clk) begin
 		if(Rst == 1) begin
@@ -31,9 +31,6 @@ module HLSM(Clk, Rst, Start, Done, a, b, c, z, x);
 			e <= 0;
 			f <= 0;
 			g <= 0;
-			h <= 0;
-			dLTe <= 0;
-			dEQe <= 0;
 			z <= 0;
 			x <= 0;
 			Done <= 0;
@@ -50,28 +47,24 @@ module HLSM(Clk, Rst, Start, Done, a, b, c, z, x);
 				s2: begin
 					d <= a + b;
 					state <= s3;
+				end
 				s3: begin
-					g <= dLTe ? d : e;
-					state <= s4;
-				s4: begin
 					e <= a + c;
+					state <= s4;
+				end
+				s4: begin
+					f <= a * c;
 					state <= s5;
+				end
 				s5: begin
-					dLTe <= d < e;
+					g <= d > e;
 					state <= s6;
+				end
 				s6: begin
-					x <= g << dLTe;
-					state <= s7;
-				s7: begin
-					dEQe <= d == e;
-					state <= s8;
-				s8: begin
-					f <= a - b;
-					h <= dEQe ? g : f;
-					state <= s9;
-				s9: begin
-					z <= h >> dEQe;
+					z <= g ? d : e;
+					x <= f - d;
 					state <= sFinal;
+				end
 				sFinal: begin
 					Done <= 1;
 					state <= sWait;
