@@ -760,6 +760,7 @@ bool HLSM::writeStates(std::ofstream *outputFile) {
 				/* SHIFT RIGHT */
 				else if (_states.at(i).getAssignedNodes().at(j)->getOperation() == "*" ||
 					_states.at(i).getAssignedNodes().at(j)->getOperation() == "/" ||
+					_states.at(i).getAssignedNodes().at(j)->getOperation() == "%" ||
 					_states.at(i).getAssignedNodes().at(j)->getOperation() == ">" ||
 					_states.at(i).getAssignedNodes().at(j)->getOperation() == "<" ||
 					_states.at(i).getAssignedNodes().at(j)->getOperation() == "==" ||
