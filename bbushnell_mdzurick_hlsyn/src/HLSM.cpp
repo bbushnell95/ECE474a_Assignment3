@@ -213,7 +213,7 @@ void HLSM::createUnscheduledGraph()
 			}
 			for (j = 0; j < (int)_nodes.at(i)->getInputs().size(); ++j) {
 				if (_nodes.at(i)->getInputs().at(j)->getComingFrom().size() != 0) {
-					for (k = 0; k < _nodes.at(i)->getInputs().at(j)->getComingFrom().size(); ++k) {
+					for (k = 0; k < (int)_nodes.at(i)->getInputs().at(j)->getComingFrom().size(); ++k) {
 						_nodes.at(i)->addPreviousNode(_nodes.at(i)->getInputs().at(j)->getComingFrom().at(k));
 					}
 				}
@@ -254,7 +254,7 @@ bool HLSM::scheduleGraph(int latency)
 
 	/* Does ASAP/ALAP Scheduling both are req'd for FDS. */
 	asapSchedule(latency);
-	if (_asapSchedule.size() > latency) {
+	if ((int)_asapSchedule.size() > latency) {
 		return false;
 	}
 	if (!alapSchedule(latency)) {
@@ -294,7 +294,7 @@ void HLSM::asapSchedule(int latency)
 	//	_asapSchedule.push_back(vector<Node*>());
 	//}
 	//go through each time cycle
-	while(scheduledNodes < _nodes.size()){//for (i = 0; i < latency; ++i) {
+	while(scheduledNodes < (int)_nodes.size()){//for (i = 0; i < latency; ++i) {
 		//go through each unscheduled node
 		_asapSchedule.push_back(vector<Node*>());
 		
@@ -317,7 +317,7 @@ void HLSM::asapSchedule(int latency)
 			}
 			else {
 				//schedule node if allowed cycle is equal to i
-				for (m = 0; m < _nodes.at(j)->getPreviousNodes().size(); ++m) {
+				for (m = 0; m < (int)_nodes.at(j)->getPreviousNodes().size(); ++m) {
 					if (_nodes.at(j)->getPreviousNodes().at(m)->getAsapTime() == -1) {
 						unscheduledPreviousNode = true;
 					}
@@ -493,7 +493,7 @@ void HLSM::calculateNodeSelfForces()
 void HLSM::calculateNodePredecessorSuccessorForces()
 {
 	int i = 0;
-	int j = 0;
+	//int j = 0;
 	std::vector<Node*> prevNodes;
 	std::vector<Node*> succNodes;
 
@@ -546,7 +546,7 @@ bool HLSM::writeToFile(char* fileName)
 	string tempFileName = "";
 	string moduleName = "";
 	int i = 0;
-	int j = 0;
+	//int j = 0;
 
 	/* Staging file name. */
 	tempFileName = fileName;
@@ -809,18 +809,7 @@ bool HLSM::writeStates(std::ofstream *outputFile) {
 
 			*outputFile << "sFinal;" << endl;
 		}
-		/*
-		if (_nodes.at(j).getOperation() != "if") {
-		*outputFile << "\t\t\t\t\t" << "state <= ";
-		if (i < (int)_forceDirectedSchedule.size() - 1) {
-		*outputFile << "s" << i + 3 << ";" << endl;
-		}
-		else {
-		*outputFile << "sFinal;" << endl;
-		}
 		*outputFile << "\t\t\t\t" << "end" << endl;
-		}
-		*/
 	}
 	return true;
 
@@ -1574,7 +1563,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	/* Check for each datawidth. */
 	if (ind1) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_1) {
@@ -1590,7 +1579,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind1) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_1) {
@@ -1606,7 +1595,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind2) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_2) {
@@ -1625,7 +1614,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind2) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_2) {
@@ -1644,7 +1633,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind8) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_8) {
@@ -1663,7 +1652,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind8) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_8) {
@@ -1682,7 +1671,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind16) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_16) {
@@ -1701,7 +1690,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind16) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_16) {
@@ -1720,7 +1709,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind32) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_32) {
@@ -1739,7 +1728,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind32) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_32) {
@@ -1758,7 +1747,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (ind64) {
 		k = 0;
-		*outputFile << "\t" << "output ";
+		*outputFile << "\t" << "output reg ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if (!(*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_64) {
@@ -1777,7 +1766,7 @@ bool HLSM::writeVarsToFile(std::ofstream *outputFile)
 	}
 	if (sind64) {
 		k = 0;
-		*outputFile << "\t" << "output signed ";
+		*outputFile << "\t" << "output reg signed ";
 		for (i = 0; i < (int)_outputs.size(); i++) {
 			if ((*_outputs.at(i)).getSignUnsigned()) {
 				if ((*_outputs.at(i)).getDataWidth() == DATAWIDTH_64) {
@@ -2143,7 +2132,7 @@ void HLSM::createStates()
 
 	/* Staging for state.
 	This begins with setting the state as the FDS time. */
-	for (i = 0; i < _forceDirectedSchedule.size(); i++) {
+	for (i = 0; i < (int)_forceDirectedSchedule.size(); i++) {
 		createNewState();
 		for (j = 0; j < (int)_nodes.size(); j++) {
 			if (_nodes.at(j)->getFDSTime() == i) {
@@ -2394,6 +2383,7 @@ bool HLSM::checkLatency(int latency) {
 	bool mult = false;
 	bool div = false;
 	bool other = false;
+	bool result = true;
 	int i = 0;
 
 	for (i = 0; i < (int)_nodes.size(); i++) {
@@ -2410,19 +2400,19 @@ bool HLSM::checkLatency(int latency) {
 
 	if (div) {
 		if (latency < 3) {
-			return false;
+			result = false;
 		}
 	}
 	if (mult) {
 		if (latency < 2) {
-			return false;
+			result = false;
 		}
 	}
 	if (other) {
 		if (latency < 1) {
-			return false;
+			result = false;
 		}
 	}
 
-
+	return result;
 }
