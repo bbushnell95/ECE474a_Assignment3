@@ -184,7 +184,7 @@ bool HLSM::readFile(char* fileName)
 	}
 
 	createUnscheduledGraph();
-	cout << &_nodes[3] << endl;
+	// cout << &_nodes[3] << endl;
 
 	inputFile.close();
 	return true;
@@ -246,6 +246,10 @@ bool HLSM::scheduleGraph(int latency)
 	/* Staging. */
 	for (i = 0; i < latency; ++i) {
 		_forceDirectedSchedule.push_back(vector<Node*>());
+	}
+
+	if (!checkLatency(latency)) {
+		return false;
 	}
 
 	/* Does ASAP/ALAP Scheduling both are req'd for FDS. */
@@ -368,12 +372,12 @@ bool HLSM::alapSchedule(int latency)
 			if (i == latency - 1) {
 				if (_nodes.at(j)->getNextNodes().size() == 0 && _nodes.at(j)->getNextIfNodes().size() == 0 ){//&& _nodes.at(j)->getNextIfNodes().size() == 0 && _nodes.at(j)->getNextElseNodes().size() == 0) {
 					if (_nodes.at(j)->getDelay() > 1) {
-						_alapShcedule[i - _nodes.at(j)->getDelay()].push_back(_nodes.at(j));
-						_nodes.at(j)->setAlapTime(i - _nodes.at(j)->getDelay());
+						_alapShcedule[i - _nodes.at(j)->getDelay()+1].push_back(_nodes.at(j));
+						_nodes.at(j)->setAlapTime(i - _nodes.at(j)->getDelay() +1);
 
 						for (k = 0; k < (int)_nodes.at(j)->getPreviousNodes().size(); ++k) {
-							if (i - _nodes.at(j)->getDelay() - 1 < _nodes.at(j)->getPreviousNodes().at(k)->getCycleAllowed()) {
-								_nodes.at(j)->getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j)->getDelay());
+							if (i - _nodes.at(j)->getDelay() + 1 < _nodes.at(j)->getPreviousNodes().at(k)->getCycleAllowed()) {
+								_nodes.at(j)->getPreviousNodes().at(k)->setCycleAllowed(i - _nodes.at(j)->getDelay() + 1);
 							}
 						}
 					}
@@ -2384,4 +2388,41 @@ int HLSM::createNestedIf(std::ifstream * inputFile, std::string checkString)
 		}
 	}
 	return currNodeIndex;
+}
+
+bool HLSM::checkLatency(int latency) {
+	bool mult = false;
+	bool div = false;
+	bool other = false;
+	int i = 0;
+
+	for (i = 0; i < (int)_nodes.size(); i++) {
+		if (_nodes.at(i)->getOperation() == "*") {
+			mult = true;
+		}
+		else if (_nodes.at(i)->getOperation() == "/") {
+			div = true;
+		}
+		else {
+			other = true;
+		}
+	}
+
+	if (div) {
+		if (latency < 3) {
+			return false;
+		}
+	}
+	if (mult) {
+		if (latency < 2) {
+			return false;
+		}
+	}
+	if (other) {
+		if (latency < 1) {
+			return false;
+		}
+	}
+
+
 }
