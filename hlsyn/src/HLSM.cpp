@@ -2139,6 +2139,14 @@ void HLSM::createStates()
 		}
 	}
 
+	/* Remove unnecessary states. */
+	for (i = 0; i < (int)_states.size(); i++) {
+		if (_states.at(i).getAssignedNodes().size() == 0) {
+			_states.erase(_states.begin() + i);
+			i--;
+		}
+	}
+
 	/* Find and adjust for presence of if statements. */
 	for (i = 0; i < (int)_states.size(); i++) {
 		for (j = 0; j < (int)_states.at(i).getAssignedNodes().size() - 1; j++) {
