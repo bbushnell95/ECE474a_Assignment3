@@ -2,7 +2,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //Students: Brett Bushnell (Undergrad), Matt Dzurick (Grad)
-//Date Created: Wed Dec  7 01:51:55 2016
+//Date Created: Wed Dec  7 02:10:33 2016
 //Assignment: 3
 //File: test.v
 //Description: An HLSM module which represents the C-like behavioral description 
@@ -10,28 +10,32 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module HLSM(Clk, Rst, Start, Done, a, b, c, d, zero, z);
+module HLSM(Clk, Rst, Start, Done, a, b, c, d, e, f, g, h, sa, avg);
 	input Clk, Rst, Start;
 	output reg Done;
 
-	input [63:0] a, b, c, d, zero;
+	input [31:0] a, b, c, d, e, f, g, h, sa;
 
-	output [63:0] z;
+	output [31:0] avg;
 
-	reg gEQz;
-	reg [63:0] e, f, g;
+	reg [31:0] t1, t2, t3, t4, t5, t6, t7, t7div2, t7div4;
 
 	reg[4:0] state;
-	parameter sWait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, s7 = 6, s8 = 7, s9 = 8, s10 = 9, s11 = 10, s12 = 11, s13 = 12, s14 = 13, sFinal = 14;
+	parameter sWait = 0, s2 = 1, s3 = 2, s4 = 3, s5 = 4, s6 = 5, s7 = 6, s8 = 7, s9 = 8, s10 = 9, s11 = 10, sFinal = 11;
 
 	always@(posedge Clk) begin
 		if(Rst == 1) begin
 			state <= sWait;
-			e <= 0;
-			f <= 0;
-			g <= 0;
-			gEQz <= 0;
-			z <= 0;
+			t1 <= 0;
+			t2 <= 0;
+			t3 <= 0;
+			t4 <= 0;
+			t5 <= 0;
+			t6 <= 0;
+			t7 <= 0;
+			t7div2 <= 0;
+			t7div4 <= 0;
+			avg <= 0;
 			Done <= 0;
 		end
 		else begin
@@ -44,6 +48,35 @@ module HLSM(Clk, Rst, Start, Done, a, b, c, d, zero, z);
 						state <= sWait;
 				end
 				s2: begin
+					t1 <= a + b;
+					state <= s3;
+				s3: begin
+					t2 <= t1 + c;
+					state <= s4;
+				s4: begin
+					t3 <= t2 + d;
+					state <= s5;
+				s5: begin
+					t4 <= t3 + e;
+					state <= s6;
+				s6: begin
+					t5 <= t4 + f;
+					state <= s7;
+				s7: begin
+					t6 <= t5 + g;
+					state <= s8;
+				s8: begin
+					t7 <= t6 + h;
+					state <= s9;
+				s9: begin
+					t7div2 <= t7 >> sa;
+					state <= s10;
+				s10: begin
+					t7div4 <= t7div2 >> sa;
+					state <= s11;
+				s11: begin
+					avg <= t7div4 >> sa;
+					state <= sFinal;
 				sFinal: begin
 					Done <= 1;
 					state <= sWait;
